@@ -1,3 +1,8 @@
+using ATMSimulador.Infrastructure;
+using ATMSimulador.Infrastructure.Database;
+using EntityFramework.Infrastructure.Core.UnitOfWork;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +20,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+builder.Services.AddDbContext<ATMDbContext>(options =>
+            options.UseSqlServer("name=ATMSimulador"));
+
+builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
 app.UseHttpsRedirection();
 
