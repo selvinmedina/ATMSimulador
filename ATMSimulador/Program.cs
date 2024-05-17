@@ -1,3 +1,4 @@
+using ATMSimulador.Domain.Validaciones;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
@@ -11,6 +12,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<UsuarioDomain>();
 
 var app = builder.Build();
 

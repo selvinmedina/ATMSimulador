@@ -8,7 +8,36 @@ namespace ATMSimulador.Infrastructure.Database.Configs
     {
         public void Configure(EntityTypeBuilder<Cuenta> builder)
         {
-            throw new NotImplementedException();
+            builder.ToTable("Cuentas");
+
+            builder.HasKey(c => c.CuentaId);
+            builder.Property(c => c.CuentaId).ValueGeneratedOnAdd();
+
+            builder.Property(c => c.UsuarioId).IsRequired();
+            builder.Property(c => c.NumeroCuenta)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.Property(c => c.Saldo)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(c => c.Activa)
+                .IsRequired();
+
+            builder.HasIndex(c => c.NumeroCuenta)
+                .IsUnique();
+
+            builder.HasOne(c => c.Usuario)
+                .WithMany(u => u.Cuentas)
+                .HasForeignKey(c => c.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configurar la relación con Transacciones
+            builder.HasMany(c => c.Transacciones)
+                .WithOne(t => t.Cuenta)
+                .HasForeignKey(t => t.CuentaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

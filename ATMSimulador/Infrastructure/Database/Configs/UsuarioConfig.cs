@@ -8,7 +8,28 @@ namespace ATMSimulador.Infrastructure.Database.Configs
     {
         public void Configure(EntityTypeBuilder<Usuario> builder)
         {
-            throw new NotImplementedException();
+            builder.ToTable("Usuarios");
+
+            builder.HasKey(u => u.UsuarioId);
+            builder.Property(u => u.UsuarioId).ValueGeneratedOnAdd();
+
+            builder.Property(u => u.NombreUsuario)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            builder.Property(u => u.HashContrasena)
+                .IsRequired()
+                .HasMaxLength(256);
+
+            builder.Property(u => u.Pin)
+                .IsRequired()
+                .HasMaxLength(4);
+
+            // Relación uno a muchos con Cuentas
+            builder.HasMany(u => u.Cuentas)
+                .WithOne(c => c.Usuario)
+                .HasForeignKey(c => c.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
