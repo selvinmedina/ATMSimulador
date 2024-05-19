@@ -28,7 +28,7 @@ namespace ATMSimulador.Features.Sockets
         {
             // Desencriptar la clave simétrica usando la clave privada RSA
             var encryptedKeyBytes = Convert.FromBase64String(encryptedSymmetricKey);
-            _symmetricKey = _keyService.DecryptData(encryptedKeyBytes);
+            _symmetricKey = await Task.Run(() => _keyService.DecryptData(encryptedKeyBytes));
         }
 
         public async Task SendMessage(string encryptedMessage)

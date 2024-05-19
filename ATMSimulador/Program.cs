@@ -24,6 +24,10 @@ builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddSingleton<UsuariosService>();
 builder.Services.AddSingleton<XmlEncryptionService>();
 builder.Services.AddSingleton<UsuarioDomain>();
+builder.Services.AddHostedService<SignalRClient>(x=>
+{
+    return new SignalRClient();
+});
 
 var app = builder.Build();
 
