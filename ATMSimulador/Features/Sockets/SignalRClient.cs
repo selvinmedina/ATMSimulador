@@ -5,20 +5,13 @@ using System.Text;
 
 namespace ATMSimulador.Features.Sockets
 {
-    public class SignalRClient : IAsyncDisposable, IHostedService
+    public class SignalRClient(string url, XmlEncryptionService xmlEncryptionService) : IAsyncDisposable, IHostedService
     {
         private HubConnection? _connection;
-        private readonly XmlEncryptionService _xmlEncryptionService;
-        private readonly RSA _rsa;
-        private readonly string _url;
+        private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
+        private readonly RSA _rsa = RSA.Create();
+        private readonly string _url = url;
         private byte[]? _symmetricKey;
-
-        public SignalRClient(string url, XmlEncryptionService xmlEncryptionService)
-        {
-            _url = url;
-            _xmlEncryptionService = xmlEncryptionService;
-            _rsa = RSA.Create();
-        }
 
         public async Task StartClient()
         {
@@ -34,7 +27,7 @@ namespace ATMSimulador.Features.Sockets
 
             _connection.On<string>("ReceiveSymmetricKey", (encryptedSymmetricKey) =>
             {
-                _symmetricKey = _xmlEncryptionService.DecryptSymmetricKeyWithRSA(encryptedSymmetricKey, _rsa);
+                _symmetricKey = XmlEncryptionService.DecryptSymmetricKeyWithRSA(encryptedSymmetricKey, _rsa);
             });
 
             await _connection.StartAsync();
@@ -50,13 +43,18 @@ namespace ATMSimulador.Features.Sockets
             await _connection.InvokeAsync("SendMessage", encryptedMessage);
         }
 
-        public async ValueTask DisposeAsync()
+        async ValueTask IAsyncDisposable.DisposeAsync()
         {
             Console.WriteLine("DisposeAsync SignalRClient");
 
             if (_connection != null)
+            {
                 await _connection.DisposeAsync();
+            }
+
+            GC.SuppressFinalize(this);
         }
+
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {

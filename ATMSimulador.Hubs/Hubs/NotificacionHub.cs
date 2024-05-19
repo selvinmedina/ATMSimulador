@@ -1,5 +1,6 @@
-﻿using ATMSimulador.Domain.Security;
-using Microsoft.AspNetCore.Authorization;
+﻿using ATMSimulador.Domain.Dtos;
+using ATMSimulador.Domain.Enums;
+using ATMSimulador.Domain.Security;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
@@ -7,23 +8,18 @@ using System.Text;
 
 namespace ATMSimulador.Hubs.Sockets
 {
-    public class NotificacionHub : Hub
+    public class NotificacionHub(XmlEncryptionService xmlEncryptionService, ILogger<NotificacionHub> logger) : Hub
     {
-        private static readonly ConcurrentDictionary<string, byte[]> _symmetricKeys = new ConcurrentDictionary<string, byte[]>();
-
-        private readonly XmlEncryptionService _xmlEncryptionService;
-        private readonly RSA _rsa;
-
-        public NotificacionHub(XmlEncryptionService xmlEncryptionService)
-        {
-            _xmlEncryptionService = xmlEncryptionService;
-            _rsa = RSA.Create();
-        }
+        private static readonly ConcurrentDictionary<string, byte[]> _symmetricKeys = new ();
+        private static readonly ConcurrentDictionary<int, SignalRClientDto> _clientesSignalR = new();
+        private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
+        private readonly RSA _rsa = RSA.Create();
+        private readonly ILogger<NotificacionHub> _logger = logger;
 
         public override async Task OnConnectedAsync()
         {
             // Generar una clave simétrica (3DES)
-            var symmetricKey = _xmlEncryptionService.GenerateSymmetricKey();
+            var symmetricKey = XmlEncryptionService.GenerateSymmetricKey();
             _symmetricKeys[Context.ConnectionId] = symmetricKey;
 
             // Obtener la clave pública del cliente y encriptar la clave simétrica con ella
@@ -41,7 +37,7 @@ namespace ATMSimulador.Hubs.Sockets
             }
 
             // Encriptar la clave simétrica usando la clave pública RSA del cliente
-            var encryptedSymmetricKey = _xmlEncryptionService.EncryptSymmetricKeyWithRSA(symmetricKey, clientPublicKey);
+            var encryptedSymmetricKey = XmlEncryptionService.EncryptSymmetricKeyWithRSA(symmetricKey, clientPublicKey);
 
             // Enviar la clave simétrica encriptada al cliente
             await Clients.Caller.SendAsync("ReceiveSymmetricKey", encryptedSymmetricKey);
@@ -64,16 +60,62 @@ namespace ATMSimulador.Hubs.Sockets
             await Clients.Caller.SendAsync("ReceiveMessage", encryptedResponse);
         }
 
+        public static IEnumerable<SignalRClientDto>? GetClients()
+        {
+            return _clientesSignalR.Values.OrderByDescending(x => x.Fecha);
+        }
+
+        public static SignalRClientDto AddClient(TipoConexionCliente tipoConexionCliente, string tokenDocumentId, string connectionId)
+        {
+            SignalRClientDto client = new()
+            {
+                TipoConexionCliente = tipoConexionCliente,
+                TokenDocumentId = tokenDocumentId,
+                TokenConnetionId = connectionId,
+                Fecha = DateTime.Now
+            };
+
+            int clientId = Guid.NewGuid().GetHashCode();
+            _clientesSignalR.TryAdd(clientId, client);
+            return client;
+        }
+
+        public static void RemoveClient(string tokenId)
+        {
+            var key = _clientesSignalR.FirstOrDefault(x => x.Value.TokenConnetionId == tokenId).Key;
+            _clientesSignalR.TryRemove(key, out _);
+        }
+
+        public void ActualizarClienteConectado(int ClientTypeId, string TokenDocumentId)
+        {
+            try
+            {
+                SignalRClientDto? cliente = GetClients()?.FirstOrDefault(x => x.TokenDocumentId == TokenDocumentId);
+                if (cliente != null)
+                {
+                    cliente.TokenConnetionId = this.Context.ConnectionId;
+                    return;
+                }
+
+                AddClient((TipoConexionCliente)ClientTypeId, TokenDocumentId,
+                    this.Context.ConnectionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error UpdateDataConnectedClient");
+            }
+        }
+
         public override Task OnDisconnectedAsync(Exception? exception)
         {
             _symmetricKeys.TryRemove(Context.ConnectionId, out _);
             return base.OnDisconnectedAsync(exception);
         }
 
-        private string ProcessXmlMessage(string xmlMessage)
+        private static string ProcessXmlMessage(string xmlMessage)
         {
-            // Aquí puedes agregar la lógica para procesar el mensaje XML
-            return "<Response>...</Response>";
+            //TODO: Aquí puedes agregar la lógica para procesar el mensaje XML
+            return xmlMessage;
         }
     }
 }

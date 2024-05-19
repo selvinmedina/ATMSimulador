@@ -5,16 +5,9 @@ using ATMSimulador.Domain.Security;
 
 namespace ATMSimulador.Domain.Validations
 {
-    public class UsuarioDomain
+    public static class UsuarioDomain
     {
-        private readonly XmlEncryptionService _xmlEncryptionService;
-
-        public UsuarioDomain(XmlEncryptionService xmlEncryptionService)
-        {
-            _xmlEncryptionService = xmlEncryptionService;
-        }
-
-        public Response<Usuario> CreateUser(UsuarioDto usuarioDto)
+        public static Response<Usuario> CreateUser(UsuarioDto usuarioDto)
         {
             if (string.IsNullOrWhiteSpace(usuarioDto.NombreUsuario))
                 return Response<Usuario>.Fail(UsuariosMensajes.MSU_002);
@@ -25,13 +18,13 @@ namespace ATMSimulador.Domain.Validations
             var user = new Usuario()
             {
                 NombreUsuario = usuarioDto.NombreUsuario,
-                Pin = _xmlEncryptionService.ComputeMd5Hash(usuarioDto.Pin)
+                Pin = XmlEncryptionService.ComputeMd5Hash(usuarioDto.Pin)
             };
 
             return Response<Usuario>.Success(user);
         }
 
-        public Response<bool> CheckLoginDto(UsuarioDto usuarioDto)
+        public static Response<bool> CheckLoginDto(UsuarioDto usuarioDto)
         {
             if (string.IsNullOrWhiteSpace(usuarioDto.NombreUsuario))
                 return Response<bool>.Fail(UsuariosMensajes.MSU_002);
@@ -42,9 +35,9 @@ namespace ATMSimulador.Domain.Validations
             return Response<bool>.Success(true);
         }
 
-        public bool VerifyPin(string enteredPin, string storedHash)
+        public static bool VerifyPin(string enteredPin, byte[] storedHash)
         {
-            var enteredHash = _xmlEncryptionService.ComputeMd5Hash(enteredPin);
+            var enteredHash = XmlEncryptionService.ComputeMd5Hash(enteredPin);
             return storedHash == enteredHash;
         }
     }

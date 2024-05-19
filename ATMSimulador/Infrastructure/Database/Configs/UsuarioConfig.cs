@@ -17,13 +17,9 @@ namespace ATMSimulador.Infrastructure.Database.Configs
                 .IsRequired()
                 .HasMaxLength(255);
 
-            builder.Property(u => u.HashContrasena)
-                .IsRequired()
-                .HasMaxLength(256);
-
             builder.Property(u => u.Pin)
                 .IsRequired()
-                .HasMaxLength(4);
+                .HasMaxLength(256);
 
             // Relación uno a muchos con Cuentas
             builder.HasMany(u => u.Cuentas)

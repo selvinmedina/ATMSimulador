@@ -8,25 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ATMSimulador.Features.Usuarios
 {
-    public class UsuariosService
+    public class UsuariosService(
+        ILogger<UsuariosService> logger,
+        IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly UsuarioDomain _dominio;
-        private readonly ILogger<UsuariosService> _logger;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<UsuariosService> _logger = logger;
 
-        public UsuariosService(
-            ILogger<UsuariosService> logger,
-            IUnitOfWork unitOfWork,
-            UsuarioDomain usuarioDomain)
-        {
-            _unitOfWork = unitOfWork;
-            _dominio = usuarioDomain;
-            _logger = logger;
-        }
-
+        // TODO: Pendiente de agregar con signalR esto
         public async Task<Response<UsuarioDto>> CreateAsync(UsuarioDto usuarioDto)
         {
-            var validationResult = _dominio.CreateUser(usuarioDto);
+            var validationResult = UsuarioDomain.CreateUser(usuarioDto);
             if (!validationResult.Ok)
             {
                 return Response<UsuarioDto>.Fail(validationResult.Message);
@@ -50,7 +42,7 @@ namespace ATMSimulador.Features.Usuarios
 
         public async Task<Response<UsuarioDto>> LoginAsync(UsuarioDto usuarioDto)
         {
-            var isLoginDtoValid = _dominio.CheckLoginDto(usuarioDto);
+            var isLoginDtoValid = UsuarioDomain.CheckLoginDto(usuarioDto);
             if (!isLoginDtoValid.Ok)
             {
                 return Response<UsuarioDto>.Fail(isLoginDtoValid.Message);
@@ -66,7 +58,7 @@ namespace ATMSimulador.Features.Usuarios
                     return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }
 
-                if (!_dominio.VerifyPin(usuarioDto.Pin, user.Pin))
+                if (!UsuarioDomain.VerifyPin(usuarioDto.Pin, user.Pin))
                 {
                     return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }

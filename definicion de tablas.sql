@@ -6,8 +6,7 @@ USE ATMSimulador;
 CREATE TABLE Usuarios (
     UsuarioId INT IDENTITY(1,1),
     NombreUsuario NVARCHAR(255) NOT NULL,
-    HashContrasena VARBINARY(256) NOT NULL,
-    Pin NVARCHAR(4) NOT NULL,
+    Pin VARBINARY(256) NOT NULL
     CONSTRAINT PK_Usuarios PRIMARY KEY (UsuarioId)
 );
 

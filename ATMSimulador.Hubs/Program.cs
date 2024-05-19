@@ -14,9 +14,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen()
     ;
 builder.Services.AddSingleton<XmlEncryptionService>();
-builder.Services.AddSingleton<UsuarioDomain>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        });
+});
 
 var app = builder.Build();
+
+app.UseCors("AllowAngularApp");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -29,5 +42,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<NotificacionHub>("/hub");
+app.MapHub<NotificacionHub>("/hub", option =>
+{
+    option.TransportMaxBufferSize = 1024 * 1024 * 10; // 10MB
+    option.ApplicationMaxBufferSize = 1024 * 1024 * 10; // 10MB
+});
 app.Run();

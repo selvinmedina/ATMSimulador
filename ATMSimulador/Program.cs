@@ -45,7 +45,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -77,8 +76,7 @@ static void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
     builder.Services.AddTransient<UsuariosService>();
-    builder.Services.AddSingleton<XmlEncryptionService>();
-    builder.Services.AddSingleton<UsuarioDomain>();
+    builder.Services.AddSingleton<XmlEncryptionService>();;
 
     // Configure SignalRClient as a hosted service
     builder.Services.AddHostedService(serviceProvider =>
@@ -87,7 +85,7 @@ static void ServiciosApp(WebApplicationBuilder builder)
         var signalRUrl = builder.Configuration["SignalR:Url"];
         if (string.IsNullOrEmpty(signalRUrl))
         {
-            throw new ArgumentNullException(nameof(signalRUrl), ProgramMensajes.MSP_001);
+            throw new Exception(ProgramMensajes.MSP_001);
         }
         return new SignalRClient(signalRUrl, xmlEncryptionService);
     });

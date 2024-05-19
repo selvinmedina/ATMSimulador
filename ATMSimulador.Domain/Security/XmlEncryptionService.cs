@@ -8,9 +8,9 @@ namespace ATMSimulador.Domain.Security
 {
     public class XmlEncryptionService
     {
-        private readonly byte[] IVector = { 27, 9, 45, 27, 0, 72, 171, 54 };
+        private readonly byte[] IVector = [27, 9, 45, 27, 0, 72, 171, 54];
 
-        public string SerializeToXml<T>(T value)
+        public static string SerializeToXml<T>(T value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -23,56 +23,48 @@ namespace ATMSimulador.Domain.Security
                 OmitXmlDeclaration = true
             };
 
-            using (var stringWriter = new StringWriter())
-            using (var xmlWriter = XmlWriter.Create(stringWriter, settings))
-            {
-                xmlSerializer.Serialize(xmlWriter, value);
-                return stringWriter.ToString();
-            }
+            using var stringWriter = new StringWriter();
+            using var xmlWriter = XmlWriter.Create(stringWriter, settings);
+            xmlSerializer.Serialize(xmlWriter, value);
+            return stringWriter.ToString();
         }
 
-        public T DeserializeFromXml<T>(string xml) where T : class
+        public static T DeserializeFromXml<T>(string xml) where T : class
         {
             if (string.IsNullOrWhiteSpace(xml))
                 throw new ArgumentNullException(nameof(xml));
 
             var xmlSerializer = new XmlSerializer(typeof(T));
 
-            using (var stringReader = new StringReader(xml))
+            using var stringReader = new StringReader(xml);
+            var deserializedObject = xmlSerializer.Deserialize(stringReader);
+            if (deserializedObject is T result)
             {
-                var deserializedObject = xmlSerializer.Deserialize(stringReader);
-                if (deserializedObject is T result)
-                {
-                    return result;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Error al deserializar el XML a la instancia del tipo esperado.");
-                }
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException("Error al deserializar el XML a la instancia del tipo esperado.");
             }
         }
 
-        public byte[] GenerateSymmetricKey()
+        public static byte[] GenerateSymmetricKey()
         {
-            using (var des = TripleDES.Create())
-            {
-                des.GenerateKey();
-                return des.Key;
-            }
+            using var des = TripleDES.Create();
+            des.GenerateKey();
+            return des.Key;
         }
 
-        public string EncryptSymmetricKeyWithRSA(byte[] symmetricKey, string publicKeyBase64)
+        public static string EncryptSymmetricKeyWithRSA(byte[] symmetricKey, string publicKeyBase64)
         {
             var publicKeyBytes = Convert.FromBase64String(publicKeyBase64);
-            using (var rsa = RSA.Create())
-            {
-                rsa.ImportRSAPublicKey(publicKeyBytes, out _);
-                var encryptedKey = rsa.Encrypt(symmetricKey, RSAEncryptionPadding.OaepSHA256);
-                return Convert.ToBase64String(encryptedKey);
-            }
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPublicKey(publicKeyBytes, out _);
+            var encryptedKey = rsa.Encrypt(symmetricKey, RSAEncryptionPadding.OaepSHA256);
+            return Convert.ToBase64String(encryptedKey);
         }
 
-        public byte[] DecryptSymmetricKeyWithRSA(string encryptedSymmetricKeyBase64, RSA rsa)
+        public static byte[] DecryptSymmetricKeyWithRSA(string encryptedSymmetricKeyBase64, RSA rsa)
         {
             var encryptedKeyBytes = Convert.FromBase64String(encryptedSymmetricKeyBase64);
             return rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.OaepSHA256);
@@ -80,52 +72,39 @@ namespace ATMSimulador.Domain.Security
 
         public string EncryptString(string message, byte[] key)
         {
-            using (var des = TripleDES.Create())
-            using (var md5 = MD5.Create())
-            {
-                var messageBytes = Encoding.UTF8.GetBytes(message);
+            using var des = TripleDES.Create();
+            var messageBytes = Encoding.UTF8.GetBytes(message);
 
-                des.Key = md5.ComputeHash(key);
-                des.IV = IVector;
-                des.Mode = CipherMode.ECB;
-                des.Padding = PaddingMode.PKCS7;
+            des.Key = MD5.HashData(key);
+            des.IV = IVector;
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
 
-                using (var encryptor = des.CreateEncryptor())
-                {
-                    var encryptedBytes = encryptor.TransformFinalBlock(messageBytes, 0, messageBytes.Length);
-                    return Convert.ToBase64String(encryptedBytes);
-                }
-            }
+            using var encryptor = des.CreateEncryptor();
+            var encryptedBytes = encryptor.TransformFinalBlock(messageBytes, 0, messageBytes.Length);
+            return Convert.ToBase64String(encryptedBytes);
         }
 
         public string DecryptString(string encryptedMessage, byte[] key)
         {
             var encryptedBytes = Convert.FromBase64String(encryptedMessage);
 
-            using (var des = TripleDES.Create())
-            using (var md5 = MD5.Create())
-            {
-                des.Key = md5.ComputeHash(key);
-                des.IV = IVector;
-                des.Mode = CipherMode.ECB;
-                des.Padding = PaddingMode.PKCS7;
+            using var des = TripleDES.Create();
+            des.Key = MD5.HashData(key);
+            des.IV = IVector;
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
 
-                using (var decryptor = des.CreateDecryptor())
-                {
-                    var decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
-                    return Encoding.UTF8.GetString(decryptedBytes);
-                }
-            }
+            using var decryptor = des.CreateDecryptor();
+            var decryptedBytes = decryptor.TransformFinalBlock(encryptedBytes, 0, encryptedBytes.Length);
+            return Encoding.UTF8.GetString(decryptedBytes);
         }
 
-        public string ComputeMd5Hash(string input)
+        public static byte[] ComputeMd5Hash(string input)
         {
-            using (var md5 = MD5.Create())
-            {
-                var inputBytes = Encoding.UTF8.GetBytes(input);
-                var hashBytes = md5.ComputeHash(inputBytes);
-                return Convert.ToBase64String(hashBytes);
-            }
+            var inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = MD5.HashData(inputBytes);
+            return hashBytes;
         }
     }
 }
