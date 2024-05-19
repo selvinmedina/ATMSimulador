@@ -7,7 +7,7 @@ namespace ATMSimulador.Infrastructure
     {
         public ApplicationUnitOfWork(ATMDbContext dbContext) : base(dbContext)
         {
-            
+
         }
     }
 }

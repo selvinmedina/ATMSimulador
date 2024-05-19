@@ -1,4 +1,7 @@
-using ATMSimulador.Domain.Validaciones;
+using ATMSimulador.Domain.Security;
+using ATMSimulador.Domain.Validations;
+using ATMSimulador.Features.Sockets;
+using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
@@ -13,6 +16,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<ATMDbContext>(options =>
+            options.UseSqlServer("name=ATMSimulador"));
+
+builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
+
+builder.Services.AddSingleton<UsuariosService>();
+builder.Services.AddSingleton<XmlEncryptionService>();
 builder.Services.AddSingleton<UsuarioDomain>();
 
 var app = builder.Build();
@@ -24,15 +34,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-builder.Services.AddDbContext<ATMDbContext>(options =>
-            options.UseSqlServer("name=ATMSimulador"));
-
-builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapHub<NotificacionHub>("/hub");
 
 app.Run();
