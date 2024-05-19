@@ -50,7 +50,7 @@ namespace ATMSimulador.Features.Sockets
                 // Enviar la clave simétrica encriptada al servidor
                 await _connection.InvokeAsync("SendSymmetricKey", encryptedSymmetricKey);
             });
-
+            await Task.Delay(TimeSpan.FromSeconds(15));
             await _connection.StartAsync();
 
             // Esperar hasta que la clave simétrica haya sido establecida antes de enviar mensajes

@@ -22,12 +22,12 @@ builder.Services.AddDbContext<ATMDbContext>(options =>
 
 builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
-builder.Services.AddSingleton<UsuariosService>();
+builder.Services.AddTransient<UsuariosService>();
 builder.Services.AddSingleton<XmlEncryptionService>();
 builder.Services.AddSingleton<UsuarioDomain>();
 
 // Configure SignalRClient as a hosted service
-builder.Services.AddHostedService<SignalRClient>(serviceProvider =>
+builder.Services.AddHostedService(serviceProvider =>
 {
     var xmlEncryptionService = serviceProvider.GetRequiredService<XmlEncryptionService>();
     var signalRUrl = builder.Configuration["SignalR:Url"];
@@ -50,7 +50,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
-app.MapHub<NotificacionHub>("/hub");
 
 app.Run();
