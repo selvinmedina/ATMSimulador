@@ -1,6 +1,6 @@
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Validations;
-using ATMSimulador.Features.Sockets;
+using ATMSimulador.Hubs.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +14,6 @@ builder.Services.AddSwaggerGen()
     ;
 builder.Services.AddSingleton<XmlEncryptionService>();
 builder.Services.AddSingleton<UsuarioDomain>();
-builder.Services.AddSingleton<KeyService>();
 
 var app = builder.Build();
 

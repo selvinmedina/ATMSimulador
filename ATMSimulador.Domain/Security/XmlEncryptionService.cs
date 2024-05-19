@@ -47,9 +47,35 @@ namespace ATMSimulador.Domain.Security
                 }
                 else
                 {
-                    throw new InvalidOperationException(XmlMensajes.MSXML_001);
+                    throw new InvalidOperationException("Error al deserializar el XML a la instancia del tipo esperado.");
                 }
             }
+        }
+
+        public byte[] GenerateSymmetricKey()
+        {
+            using (var des = TripleDES.Create())
+            {
+                des.GenerateKey();
+                return des.Key;
+            }
+        }
+
+        public string EncryptSymmetricKeyWithRSA(byte[] symmetricKey, string publicKeyBase64)
+        {
+            var publicKeyBytes = Convert.FromBase64String(publicKeyBase64);
+            using (var rsa = RSA.Create())
+            {
+                rsa.ImportRSAPublicKey(publicKeyBytes, out _);
+                var encryptedKey = rsa.Encrypt(symmetricKey, RSAEncryptionPadding.OaepSHA256);
+                return Convert.ToBase64String(encryptedKey);
+            }
+        }
+
+        public byte[] DecryptSymmetricKeyWithRSA(string encryptedSymmetricKeyBase64, RSA rsa)
+        {
+            var encryptedKeyBytes = Convert.FromBase64String(encryptedSymmetricKeyBase64);
+            return rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.OaepSHA256);
         }
 
         public string EncryptString(string message, byte[] key)
