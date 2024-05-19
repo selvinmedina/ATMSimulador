@@ -17,10 +17,10 @@ namespace ATMSimulador.Domain.Validations
         public Response<Usuario> CreateUser(UsuarioDto usuarioDto)
         {
             if (string.IsNullOrWhiteSpace(usuarioDto.NombreUsuario))
-                return Response<Usuario>.Fail(UsuariosMensajes.MS_002);
+                return Response<Usuario>.Fail(UsuariosMensajes.MSU_002);
 
             if (string.IsNullOrWhiteSpace(usuarioDto.Pin) || usuarioDto.Pin.Length != 4)
-                return Response<Usuario>.Fail(UsuariosMensajes.MS_003);
+                return Response<Usuario>.Fail(UsuariosMensajes.MSU_003);
 
             var user = new Usuario()
             {
@@ -34,10 +34,10 @@ namespace ATMSimulador.Domain.Validations
         public Response<bool> CheckLoginDto(UsuarioDto usuarioDto)
         {
             if (string.IsNullOrWhiteSpace(usuarioDto.NombreUsuario))
-                return Response<bool>.Fail(UsuariosMensajes.MS_002);
+                return Response<bool>.Fail(UsuariosMensajes.MSU_002);
 
             if (string.IsNullOrWhiteSpace(usuarioDto.Pin))
-                return Response<bool>.Fail(UsuariosMensajes.MS_003);
+                return Response<bool>.Fail(UsuariosMensajes.MSU_003);
 
             return Response<bool>.Success(true);
         }

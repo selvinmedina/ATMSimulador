@@ -47,7 +47,7 @@ namespace ATMSimulador.Domain.Security
                 }
                 else
                 {
-                    throw new InvalidOperationException(XmlMessages.MS_001);
+                    throw new InvalidOperationException(XmlMensajes.MSXML_001);
                 }
             }
         }

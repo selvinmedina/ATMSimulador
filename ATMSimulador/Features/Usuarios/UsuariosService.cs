@@ -43,7 +43,7 @@ namespace ATMSimulador.Features.Usuarios
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, UsuariosMensajes.MS_001);
+                _logger.LogError(ex, UsuariosMensajes.MSU_001);
                 return Response<UsuarioDto>.Fail(ex.Message);
             }
         }
@@ -63,12 +63,12 @@ namespace ATMSimulador.Features.Usuarios
 
                 if (user == null)
                 {
-                    return Response<UsuarioDto>.Fail(UsuariosMensajes.MS_004);
+                    return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }
 
                 if (!_dominio.VerifyPin(usuarioDto.Pin, user.Pin))
                 {
-                    return Response<UsuarioDto>.Fail(UsuariosMensajes.MS_004);
+                    return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }
 
                 usuarioDto.UsuarioId = user.UsuarioId;

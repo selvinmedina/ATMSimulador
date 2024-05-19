@@ -1,3 +1,4 @@
+using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Sockets;
@@ -24,10 +25,19 @@ builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddSingleton<UsuariosService>();
 builder.Services.AddSingleton<XmlEncryptionService>();
 builder.Services.AddSingleton<UsuarioDomain>();
-builder.Services.AddHostedService<SignalRClient>(x=>
+
+// Configure SignalRClient as a hosted service
+builder.Services.AddHostedService<SignalRClient>(serviceProvider =>
 {
-    return new SignalRClient();
+    var xmlEncryptionService = serviceProvider.GetRequiredService<XmlEncryptionService>();
+    var signalRUrl = builder.Configuration["SignalR:Url"];
+    if (string.IsNullOrEmpty(signalRUrl))
+    {
+        throw new ArgumentNullException(nameof(signalRUrl), ProgramMensajes.MSP_001);
+    }
+    return new SignalRClient(signalRUrl, xmlEncryptionService);
 });
+
 
 var app = builder.Build();
 
