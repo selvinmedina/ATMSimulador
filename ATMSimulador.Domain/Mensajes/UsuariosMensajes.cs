@@ -6,5 +6,6 @@
         public const string MSU_002 = "El nombre de usuario es obligatorio.";
         public const string MSU_003 = "El PIN es obligatorio y debe tener 4 dígitos.";
         public const string MSU_004 = "Usuario o PIN incorrecto.";
+        public const string MSU_005 = "Error al intentar loguear al usuario.";
     }
 }

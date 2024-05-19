@@ -77,7 +77,7 @@ namespace ATMSimulador.Features.Usuarios
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error logging in user");
+                _logger.LogError(ex, UsuariosMensajes.MSU_005);
                 return Response<UsuarioDto>.Fail(ex.Message);
             }
         }
