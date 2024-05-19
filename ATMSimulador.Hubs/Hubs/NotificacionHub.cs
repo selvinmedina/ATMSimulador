@@ -109,6 +109,7 @@ namespace ATMSimulador.Hubs.Sockets
         public override Task OnDisconnectedAsync(Exception? exception)
         {
             _symmetricKeys.TryRemove(Context.ConnectionId, out _);
+            RemoveClient(Context.ConnectionId);
             return base.OnDisconnectedAsync(exception);
         }
 
