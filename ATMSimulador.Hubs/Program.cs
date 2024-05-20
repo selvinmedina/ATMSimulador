@@ -1,5 +1,6 @@
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Validations;
+using ATMSimulador.Hubs.Hubs;
 using ATMSimulador.Hubs.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen()
     ;
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddSingleton<XmlEncryptionService>();
 
 builder.Services.AddCors(options =>

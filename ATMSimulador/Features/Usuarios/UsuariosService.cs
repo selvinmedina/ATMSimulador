@@ -10,13 +10,13 @@ namespace ATMSimulador.Features.Usuarios
 {
     public class UsuariosService(
         ILogger<UsuariosService> logger,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork) : IUsuariosService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<UsuariosService> _logger = logger;
 
         // TODO: Pendiente de agregar con signalR esto
-        public async Task<Response<UsuarioDto>> CreateAsync(UsuarioDto usuarioDto)
+        public async Task<Response<UsuarioDto>> Registro(UsuarioDto usuarioDto)
         {
             var validationResult = UsuarioDomain.CreateUser(usuarioDto);
             if (!validationResult.Ok)
@@ -72,6 +72,12 @@ namespace ATMSimulador.Features.Usuarios
                 _logger.LogError(ex, UsuariosMensajes.MSU_005);
                 return Response<UsuarioDto>.Fail(ex.Message);
             }
+        }
+
+
+        void IDisposable.Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -55,23 +55,11 @@ namespace ATMSimulador.Domain.Security
             return des.Key;
         }
 
-        public static string EncryptSymmetricKeyWithRSA(byte[] symmetricKey, string publicKeyBase64)
+        public string EncryptString(string message, byte[]? key)
         {
-            var publicKeyBytes = Convert.FromBase64String(publicKeyBase64);
-            using var rsa = RSA.Create();
-            rsa.ImportRSAPublicKey(publicKeyBytes, out _);
-            var encryptedKey = rsa.Encrypt(symmetricKey, RSAEncryptionPadding.OaepSHA256);
-            return Convert.ToBase64String(encryptedKey);
-        }
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
 
-        public static byte[] DecryptSymmetricKeyWithRSA(string encryptedSymmetricKeyBase64, RSA rsa)
-        {
-            var encryptedKeyBytes = Convert.FromBase64String(encryptedSymmetricKeyBase64);
-            return rsa.Decrypt(encryptedKeyBytes, RSAEncryptionPadding.OaepSHA256);
-        }
-
-        public string EncryptString(string message, byte[] key)
-        {
             using var des = TripleDES.Create();
             var messageBytes = Encoding.UTF8.GetBytes(message);
 
@@ -85,8 +73,11 @@ namespace ATMSimulador.Domain.Security
             return Convert.ToBase64String(encryptedBytes);
         }
 
-        public string DecryptString(string encryptedMessage, byte[] key)
+        public string DecryptString(string encryptedMessage, byte[]? key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
             var encryptedBytes = Convert.FromBase64String(encryptedMessage);
 
             using var des = TripleDES.Create();

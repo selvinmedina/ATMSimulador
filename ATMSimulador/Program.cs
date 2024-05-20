@@ -75,18 +75,19 @@ static void ServiciosApp(WebApplicationBuilder builder)
 
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
-    builder.Services.AddTransient<UsuariosService>();
+    builder.Services.AddTransient<IUsuariosService, UsuariosService>();
     builder.Services.AddSingleton<XmlEncryptionService>();;
 
     // Configure SignalRClient as a hosted service
     builder.Services.AddHostedService(serviceProvider =>
     {
         var xmlEncryptionService = serviceProvider.GetRequiredService<XmlEncryptionService>();
+
         var signalRUrl = builder.Configuration["SignalR:Url"];
         if (string.IsNullOrEmpty(signalRUrl))
         {
             throw new Exception(ProgramMensajes.MSP_001);
         }
-        return new SignalRClient(signalRUrl, xmlEncryptionService);
+        return new SignalRClient(signalRUrl, xmlEncryptionService, serviceProvider);
     });
 }
