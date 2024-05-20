@@ -12,6 +12,7 @@ namespace ATMSimulador.Features.Sockets
     {
         private HubConnection? _connection;
         private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
+        private readonly RSA _rsa = RSA.Create();
         private readonly string _url = url;
         private byte[]? _symmetricKey;
         private readonly string _tokenDocumentId = Guid.NewGuid().ToString();
@@ -22,6 +23,11 @@ namespace ATMSimulador.Features.Sockets
             _connection = new HubConnectionBuilder()
                 .WithUrl(_url)
                 .Build();
+
+            _connection.On<string>("ReceiveSymmetricKey", (base64SymetricKey) =>
+            {
+                _symmetricKey = Convert.FromBase64String(base64SymetricKey);
+            });
 
             await _connection.StartAsync();
 

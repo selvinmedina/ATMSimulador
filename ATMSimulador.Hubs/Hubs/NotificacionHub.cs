@@ -49,7 +49,11 @@ namespace ATMSimulador.Hubs.Sockets
         {
             try
             {
-                _connectionManager.UpdateClientConnection(clientTypeId, tokenDocumentId, Context.ConnectionId);
+                var symmetricKey = _connectionManager.UpdateClientConnection(clientTypeId, tokenDocumentId, Context.ConnectionId);
+
+                var symmetricKeyBase64 = Convert.ToBase64String(symmetricKey);
+
+                Clients.Client(Context.ConnectionId).SendAsync("ReceiveSymmetricKey", symmetricKeyBase64);
             }
             catch (Exception ex)
             {

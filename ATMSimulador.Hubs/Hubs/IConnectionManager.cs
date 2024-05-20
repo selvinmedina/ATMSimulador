@@ -5,12 +5,12 @@ namespace ATMSimulador.Hubs.Hubs
 {
     public interface IConnectionManager
     {
-        void GenerateAndStoreSymmetricKey(string connectionId);
+        byte[] GenerateAndStoreSymmetricKey(string connectionId);
         byte[] GetSymmetricKey(string connectionId);
         void RemoveSymmetricKey(string connectionId);
         IEnumerable<SignalRClientDto> GetClients();
         SignalRClientDto AddClient(TipoConexionCliente tipoConexionCliente, string tokenDocumentId, string connectionId);
         void RemoveClient(string tokenId);
-        void UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId);
+        byte[] UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId);
     }
 }

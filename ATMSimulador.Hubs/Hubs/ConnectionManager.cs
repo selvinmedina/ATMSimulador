@@ -2,6 +2,7 @@
 using ATMSimulador.Domain.Enums;
 using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
 namespace ATMSimulador.Hubs.Hubs
@@ -11,10 +12,12 @@ namespace ATMSimulador.Hubs.Hubs
         private static readonly ConcurrentDictionary<string, byte[]> _symmetricKeys = new();
         private static readonly ConcurrentDictionary<int, SignalRClientDto> _clientesSignalR = new();
 
-        public void GenerateAndStoreSymmetricKey(string connectionId)
+        public byte[] GenerateAndStoreSymmetricKey(string connectionId)
         {
             var symmetricKey = XmlEncryptionService.GenerateSymmetricKey();
             _symmetricKeys[connectionId] = symmetricKey;
+
+            return symmetricKey;
         }
 
         public byte[] GetSymmetricKey(string connectionId)
@@ -53,7 +56,7 @@ namespace ATMSimulador.Hubs.Hubs
             _clientesSignalR.TryRemove(key, out _);
         }
 
-        public void UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId)
+        public byte[] UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId)
         {
             var client = _clientesSignalR.Values.FirstOrDefault(x => x.TokenDocumentId == tokenDocumentId);
             if (client != null)
@@ -64,6 +67,12 @@ namespace ATMSimulador.Hubs.Hubs
             {
                 AddClient((TipoConexionCliente)clientTypeId, tokenDocumentId, connectionId);
             }
+
+            // Generar y almacenar la clave simétrica
+            var symetricKey = GenerateAndStoreSymmetricKey(connectionId);
+
+            return symetricKey;
         }
+
     }
 }
