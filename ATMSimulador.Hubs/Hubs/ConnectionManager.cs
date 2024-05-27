@@ -1,33 +1,12 @@
 ﻿using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Enums;
-using ATMSimulador.Domain.Mensajes;
-using ATMSimulador.Domain.Security;
 using System.Collections.Concurrent;
 
 namespace ATMSimulador.Hubs.Hubs
 {
     public class ConnectionManager : IConnectionManager
     {
-        private static readonly ConcurrentDictionary<string, byte[]> _symmetricKeys = new();
         private static readonly ConcurrentDictionary<int, SignalRClientDto> _clientesSignalR = new();
-
-        public byte[] GenerateAndStoreSymmetricKey(string connectionId)
-        {
-            var symmetricKey = XmlEncryptionService.GenerateSymmetricKey();
-            _symmetricKeys[connectionId] = symmetricKey;
-
-            return symmetricKey;
-        }
-
-        public byte[] GetSymmetricKey(string connectionId)
-        {
-            return _symmetricKeys.TryGetValue(connectionId, out var key) ? key : throw new InvalidOperationException(SecurityMensajes.MSEC_001);
-        }
-
-        public void RemoveSymmetricKey(string connectionId)
-        {
-            _symmetricKeys.TryRemove(connectionId, out _);
-        }
 
         public IEnumerable<SignalRClientDto> GetClients()
         {
@@ -55,7 +34,7 @@ namespace ATMSimulador.Hubs.Hubs
             _clientesSignalR.TryRemove(key, out _);
         }
 
-        public byte[] UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId)
+        public void UpdateClientConnection(int clientTypeId, string tokenDocumentId, string connectionId)
         {
             var client = _clientesSignalR.Values.FirstOrDefault(x => x.TokenDocumentId == tokenDocumentId);
             if (client != null)
@@ -66,12 +45,6 @@ namespace ATMSimulador.Hubs.Hubs
             {
                 AddClient((TipoConexionCliente)clientTypeId, tokenDocumentId, connectionId);
             }
-
-            // Generar y almacenar la clave simétrica
-            var symetricKey = GenerateAndStoreSymmetricKey(connectionId);
-
-            return symetricKey;
         }
-
     }
 }

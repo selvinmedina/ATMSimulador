@@ -13,7 +13,6 @@ namespace ATMSimulador.Features.Sockets
         private HubConnection? _connection;
         private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
         private readonly string _url = url;
-        private byte[]? _symmetricKey;
         private readonly string _tokenDocumentId = Guid.NewGuid().ToString();
         private readonly IMediator _mediator = mediator;
 
@@ -56,7 +55,7 @@ namespace ATMSimulador.Features.Sockets
                     var response = await _mediator.Send(new RegistroCommand(usuarioDto));
 
                     var responseData = XmlEncryptionService.SerializeToXml(response);
-                    var responseEncrypted = _xmlEncryptionService.EncryptString(responseData, _symmetricKey);
+                    var responseEncrypted = _xmlEncryptionService.EncryptString(responseData);
                     await _connection.InvokeAsync("ReceiveMessage", responseEncrypted);
                 }
                 catch (Exception ex)

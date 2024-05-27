@@ -8,6 +8,7 @@ namespace ATMSimulador.Domain.Security
     public class XmlEncryptionService
     {
         private readonly byte[] IVector = [27, 9, 45, 27, 0, 72, 171, 54];
+        private readonly string _key = "ATF#.345T4TIRNGFG8FDG888434R3";
 
         public static string SerializeToXml<T>(T value)
         {
@@ -47,29 +48,10 @@ namespace ATMSimulador.Domain.Security
             }
         }
 
-        public static byte[] GenerateSymmetricKey()
-        {
-            using var des = TripleDES.Create();
-            des.GenerateKey();
-            return des.Key;
-        }
 
         public string EncryptString(string message, byte[]? key)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-
-            using var des = TripleDES.Create();
-            var messageBytes = Encoding.UTF8.GetBytes(message);
-
-            des.Key = MD5.HashData(key);
-            des.IV = IVector;
-            des.Mode = CipherMode.ECB;
-            des.Padding = PaddingMode.PKCS7;
-
-            using var encryptor = des.CreateEncryptor();
-            var encryptedBytes = encryptor.TransformFinalBlock(messageBytes, 0, messageBytes.Length);
-            return Convert.ToBase64String(encryptedBytes);
+            
         }
 
         public string DecryptString(string encryptedMessage, byte[]? key)
@@ -90,11 +72,22 @@ namespace ATMSimulador.Domain.Security
             return Encoding.UTF8.GetString(decryptedBytes);
         }
 
-        public static byte[] ComputeMd5Hash(string input)
+        public byte[] ComputeMd5Hash(string input)
         {
-            var inputBytes = Encoding.UTF8.GetBytes(input);
-            var hashBytes = MD5.HashData(inputBytes);
-            return hashBytes;
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            using var des = TripleDES.Create();
+            var messageBytes = Encoding.UTF8.GetBytes(input);
+
+            des.Key = MD5.HashData(_key);
+            des.IV = IVector;
+            des.Mode = CipherMode.ECB;
+            des.Padding = PaddingMode.PKCS7;
+
+            using var encryptor = des.CreateEncryptor();
+            var encryptedBytes = encryptor.TransformFinalBlock(messageBytes, 0, messageBytes.Length);
+            return encryptedBytes;
         }
     }
 }
