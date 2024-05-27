@@ -6,6 +6,6 @@ namespace ATMSimulador.Features.Usuarios
     public interface IUsuariosService : IDisposable
     {
         Task<Response<UsuarioDto>> LoginAsync(UsuarioDto usuarioDto);
-        Task<Response<UsuarioDto>> Registro(UsuarioDto usuarioDto);
+        Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto);
     }
 }

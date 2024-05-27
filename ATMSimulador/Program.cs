@@ -1,15 +1,17 @@
 #region usings
 using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
-using ATMSimulador.Domain.Validations;
+using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Sockets;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 #endregion
 
@@ -53,6 +55,8 @@ ServiciosApp(builder);
 
 var app = builder.Build();
 
+app.UseCors("AllowAngularApp");
+
 #region Configure
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -64,30 +68,48 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 #endregion
 
 app.Run();
 
-static void ServiciosApp(WebApplicationBuilder builder)
+void ServiciosApp(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<ATMDbContext>(options =>
-                options.UseSqlServer("name=ATMSimulador"));
+    options.UseSqlServer("name=ATMSimulador"));
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
+    builder.Services.AddTransient<IAuthService, AuthService>();
+
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
-    builder.Services.AddSingleton<XmlEncryptionService>();;
+    builder.Services.AddSingleton<XmlEncryptionService>();
+    builder.Services.AddSingleton(jwtSettings);
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAngularApp",
+            builder =>
+            {
+                builder.WithOrigins("http://localhost:4200")
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials();
+            });
+    });
 
     // Configure SignalRClient as a hosted service
     builder.Services.AddHostedService(serviceProvider =>
     {
         var xmlEncryptionService = serviceProvider.GetRequiredService<XmlEncryptionService>();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
 
         var signalRUrl = builder.Configuration["SignalR:Url"];
         if (string.IsNullOrEmpty(signalRUrl))
         {
             throw new Exception(ProgramMensajes.MSP_001);
         }
-        return new SignalRClient(signalRUrl, xmlEncryptionService, serviceProvider);
+        return new SignalRClient(signalRUrl, xmlEncryptionService, mediator);
     });
 }

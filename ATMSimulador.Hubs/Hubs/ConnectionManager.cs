@@ -2,7 +2,6 @@
 using ATMSimulador.Domain.Enums;
 using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
-using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
 namespace ATMSimulador.Hubs.Hubs

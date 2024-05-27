@@ -1,5 +1,4 @@
 using ATMSimulador.Domain.Security;
-using ATMSimulador.Domain.Validations;
 using ATMSimulador.Hubs.Hubs;
 using ATMSimulador.Hubs.Sockets;
 

@@ -16,7 +16,7 @@ namespace ATMSimulador.Features.Usuarios
         private readonly ILogger<UsuariosService> _logger = logger;
 
         // TODO: Pendiente de agregar con signalR esto
-        public async Task<Response<UsuarioDto>> Registro(UsuarioDto usuarioDto)
+        public async Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto)
         {
             var validationResult = UsuarioDomain.CreateUser(usuarioDto);
             if (!validationResult.Ok)

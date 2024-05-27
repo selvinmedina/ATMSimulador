@@ -38,7 +38,8 @@ namespace ATMSimulador.Domain.Validations
         public static bool VerifyPin(string enteredPin, byte[] storedHash)
         {
             var enteredHash = XmlEncryptionService.ComputeMd5Hash(enteredPin);
-            return storedHash == enteredHash;
+            return storedHash.SequenceEqual(enteredHash);
         }
+
     }
 }

@@ -1,22 +1,21 @@
 ﻿using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Enums;
 using ATMSimulador.Domain.Security;
-using ATMSimulador.Features.Usuarios;
+using ATMSimulador.Features.Usuarios.Mediator.Registro;
+using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Security.Cryptography;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace ATMSimulador.Features.Sockets
 {
-    public class SignalRClient(string url, XmlEncryptionService xmlEncryptionService, IServiceProvider serviceProvider) : IAsyncDisposable, IHostedService
+    public class SignalRClient(string url, XmlEncryptionService xmlEncryptionService, IMediator mediator) : IAsyncDisposable, IHostedService
     {
         private HubConnection? _connection;
         private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
-        private readonly RSA _rsa = RSA.Create();
         private readonly string _url = url;
         private byte[]? _symmetricKey;
         private readonly string _tokenDocumentId = Guid.NewGuid().ToString();
-        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly IMediator _mediator = mediator;
 
         public async Task StartClient()
         {
@@ -51,29 +50,34 @@ namespace ATMSimulador.Features.Sockets
         {
             _connection?.On<string>("OnRegistro", async (dataEncriptada) =>
             {
-                var dataDesencriptada = _xmlEncryptionService.DecryptString(dataEncriptada, _symmetricKey);
-                var usuarioDto = XmlEncryptionService.DeserializeFromXml<UsuarioDto>(dataDesencriptada);
-                using var usuariosService = _serviceProvider.GetRequiredService<IUsuariosService>();
-                var response = await usuariosService.Registro(usuarioDto);
+                var usuarioDto = JsonConvert.DeserializeObject<UsuarioDto>(dataEncriptada)!;
+                try
+                {
+                    var response = await _mediator.Send(new RegistroCommand(usuarioDto));
 
-                // Enviar la respuesta de vuelta al servidor, si es necesario
-                var responseData = XmlEncryptionService.SerializeToXml(response);
-                var responseEncrypted = _xmlEncryptionService.EncryptString(responseData, _symmetricKey);
-                await _connection.InvokeAsync("ReceiveMessage", responseEncrypted);
+                    var responseData = XmlEncryptionService.SerializeToXml(response);
+                    var responseEncrypted = _xmlEncryptionService.EncryptString(responseData, _symmetricKey);
+                    await _connection.InvokeAsync("ReceiveMessage", responseEncrypted);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    throw;
+                }
             });
 
-            _connection?.On<string>("OnLogin", async (dataEncriptada) =>
-            {
-                var dataDesencriptada = _xmlEncryptionService.DecryptString(dataEncriptada, _symmetricKey);
-                var usuarioDto = XmlEncryptionService.DeserializeFromXml<UsuarioDto>(dataDesencriptada);
-                using var usuariosService = _serviceProvider.GetRequiredService<IUsuariosService>();
-                var response = await usuariosService.LoginAsync(usuarioDto);
+            //_connection?.On<string>("OnLogin", async (dataEncriptada) =>
+            //{
+            //    var dataDesencriptada = _xmlEncryptionService.DecryptString(dataEncriptada, _symmetricKey);
+            //    var usuarioDto = XmlEncryptionService.DeserializeFromXml<UsuarioDto>(dataDesencriptada);
+            //    using var usuariosService = _serviceProvider.GetRequiredService<IUsuariosService>();
+            //    var response = await usuariosService.LoginAsync(usuarioDto);
 
-                // Enviar la respuesta de vuelta al servidor, si es necesario
-                var responseData = XmlEncryptionService.SerializeToXml(response);
-                var responseEncrypted = _xmlEncryptionService.EncryptString(responseData, _symmetricKey);
-                await _connection.InvokeAsync("ReceiveMessage", responseEncrypted);
-            });
+            //    // Enviar la respuesta de vuelta al servidor, si es necesario
+            //    var responseData = XmlEncryptionService.SerializeToXml(response);
+            //    var responseEncrypted = _xmlEncryptionService.EncryptString(responseData, _symmetricKey);
+            //    await _connection.InvokeAsync("ReceiveMessage", responseEncrypted);
+            //});
         }
 
         public void AgregarEventosHubConnection()

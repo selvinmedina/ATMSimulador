@@ -1,18 +1,14 @@
-﻿using ATMSimulador.Domain.Dtos;
-using ATMSimulador.Domain;
+﻿using ATMSimulador.Domain.Enums;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Hubs.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using System.Data.Common;
-using System.Security.Cryptography;
 using System.Text;
-using ATMSimulador.Domain.Enums;
 
 namespace ATMSimulador.Hubs.Sockets
 {
     public class NotificacionHub(IConnectionManager connectionManager, XmlEncryptionService xmlEncryptionService, ILogger<NotificacionHub> logger) : Hub
     {
-        private readonly IConnectionManager _connectionManager= connectionManager;
+        private readonly IConnectionManager _connectionManager = connectionManager;
         private readonly XmlEncryptionService _xmlEncryptionService = xmlEncryptionService;
         private readonly ILogger<NotificacionHub> _logger = logger;
 
