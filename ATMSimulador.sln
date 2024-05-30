@@ -7,10 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ATMSimulador", "ATMSimulado
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ATMSimulador.Domain", "ATMSimulador.Domain\ATMSimulador.Domain.csproj", "{C9B54B57-378E-4403-A4D9-B12CE34D3F0F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ATMSimulador.Hubs", "ATMSimulador.Hubs\ATMSimulador.Hubs.csproj", "{DA234769-E6EE-40D2-82DC-F79458AFA694}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ATMSimulador.Dominio", "ATMSimulador.Dominio\ATMSimulador.Dominio.csproj", "{105A8668-25A5-406F-9B1C-7FB27F462F1F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,14 +21,6 @@ Global
 		{C9B54B57-378E-4403-A4D9-B12CE34D3F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9B54B57-378E-4403-A4D9-B12CE34D3F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9B54B57-378E-4403-A4D9-B12CE34D3F0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA234769-E6EE-40D2-82DC-F79458AFA694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA234769-E6EE-40D2-82DC-F79458AFA694}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA234769-E6EE-40D2-82DC-F79458AFA694}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA234769-E6EE-40D2-82DC-F79458AFA694}.Release|Any CPU.Build.0 = Release|Any CPU
-		{105A8668-25A5-406F-9B1C-7FB27F462F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{105A8668-25A5-406F-9B1C-7FB27F462F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{105A8668-25A5-406F-9B1C-7FB27F462F1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{105A8668-25A5-406F-9B1C-7FB27F462F1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

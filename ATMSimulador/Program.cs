@@ -1,13 +1,10 @@
 #region usings
-using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Features.Auth;
-using ATMSimulador.Features.Sockets;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -84,7 +81,7 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddTransient<IAuthService, AuthService>();
 
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
-    builder.Services.AddSingleton<XmlEncryptionService>();
+    builder.Services.AddSingleton<EncryptionService>();
     builder.Services.AddSingleton(jwtSettings);
 
     builder.Services.AddCors(options =>
@@ -97,19 +94,5 @@ void ServiciosApp(WebApplicationBuilder builder)
                        .AllowAnyMethod()
                        .AllowCredentials();
             });
-    });
-
-    // Configure SignalRClient as a hosted service
-    builder.Services.AddHostedService(serviceProvider =>
-    {
-        var xmlEncryptionService = serviceProvider.GetRequiredService<XmlEncryptionService>();
-        var mediator = serviceProvider.GetRequiredService<IMediator>();
-
-        var signalRUrl = builder.Configuration["SignalR:Url"];
-        if (string.IsNullOrEmpty(signalRUrl))
-        {
-            throw new Exception(ProgramMensajes.MSP_001);
-        }
-        return new SignalRClient(signalRUrl, xmlEncryptionService, mediator);
     });
 }

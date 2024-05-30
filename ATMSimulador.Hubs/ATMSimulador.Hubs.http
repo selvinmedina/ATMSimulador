@@ -1,6 +1,0 @@
-@ATMSimulador.Hubs_HostAddress = http://localhost:5087
-
-GET {{ATMSimulador.Hubs_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

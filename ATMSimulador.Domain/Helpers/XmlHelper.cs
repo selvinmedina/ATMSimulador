@@ -20,12 +20,10 @@ namespace ATMSimulador.Domain.Helpers
                 OmitXmlDeclaration = true
             };
 
-            using (var stringWriter = new StringWriter())
-            using (var xmlWriter = XmlWriter.Create(stringWriter, settings))
-            {
-                xmlSerializer.Serialize(xmlWriter, value);
-                return stringWriter.ToString();
-            }
+            using var stringWriter = new StringWriter();
+            using var xmlWriter = XmlWriter.Create(stringWriter, settings);
+            xmlSerializer.Serialize(xmlWriter, value);
+            return stringWriter.ToString();
         }
 
         public static T DeserializeFromXml<T>(string xml) where T : class
