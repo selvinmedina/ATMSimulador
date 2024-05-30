@@ -10,15 +10,17 @@ namespace ATMSimulador.Features.Usuarios
 {
     public class UsuariosService(
         ILogger<UsuariosService> logger,
-        IUnitOfWork unitOfWork) : IUsuariosService
+        IUnitOfWork unitOfWork,
+        UsuarioDomain usuarioDomain) : IUsuariosService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<UsuariosService> _logger = logger;
+        private readonly UsuarioDomain _usuarioDomain = usuarioDomain;
 
         // TODO: Pendiente de agregar con signalR esto
         public async Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto)
         {
-            var validationResult = UsuarioDomain.CreateUser(usuarioDto);
+            var validationResult = _usuarioDomain.CreateUser(usuarioDto);
             if (!validationResult.Ok)
             {
                 return Response<UsuarioDto>.Fail(validationResult.Message);
@@ -42,7 +44,7 @@ namespace ATMSimulador.Features.Usuarios
 
         public async Task<Response<UsuarioDto>> LoginAsync(UsuarioDto usuarioDto)
         {
-            var isLoginDtoValid = UsuarioDomain.CheckLoginDto(usuarioDto);
+            var isLoginDtoValid = _usuarioDomain.CheckLoginDto(usuarioDto);
             if (!isLoginDtoValid.Ok)
             {
                 return Response<UsuarioDto>.Fail(isLoginDtoValid.Message);
@@ -58,7 +60,7 @@ namespace ATMSimulador.Features.Usuarios
                     return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }
 
-                if (!UsuarioDomain.VerifyPin(usuarioDto.Pin, user.Pin))
+                if (!_usuarioDomain.VerifyPin(usuarioDto.Pin, user.Pin))
                 {
                     return Response<UsuarioDto>.Fail(UsuariosMensajes.MSU_004);
                 }

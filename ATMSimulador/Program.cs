@@ -1,5 +1,6 @@
 #region usings
 using ATMSimulador.Domain.Security;
+using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
@@ -74,14 +75,22 @@ void ServiciosApp(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<ATMDbContext>(options =>
     options.UseSqlServer("name=ATMSimulador"));
-    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
 
     builder.Services.AddTransient<IAuthService, AuthService>();
 
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
-    builder.Services.AddSingleton<EncryptionService>();
+    builder.Services.AddSingleton<EncryptionService>(x =>
+    {
+        var secretKey = builder.Configuration["Security:SecretKeyEncryptionService"];
+
+        if (secretKey is null) throw new Exception("La key Security:SecretKeyEncryptionService no existe en appsettings.");
+
+        return new(secretKey);
+    });
+
+    builder.Services.AddSingleton<UsuarioDomain>();
     builder.Services.AddSingleton(jwtSettings);
 
     builder.Services.AddCors(options =>
