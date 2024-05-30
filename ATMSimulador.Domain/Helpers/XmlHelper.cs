@@ -33,17 +33,15 @@ namespace ATMSimulador.Domain.Helpers
 
             var xmlSerializer = new XmlSerializer(typeof(T));
 
-            using (var stringReader = new StringReader(xml))
+            using var stringReader = new StringReader(xml);
+            var deserializedObject = xmlSerializer.Deserialize(stringReader);
+            if (deserializedObject is T result)
             {
-                var deserializedObject = xmlSerializer.Deserialize(stringReader);
-                if (deserializedObject is T result)
-                {
-                    return result;
-                }
-                else
-                {
-                    throw new InvalidOperationException(XmlMensajes.MSXML_001);
-                }
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException(XmlMensajes.MSXML_001);
             }
         }
     }

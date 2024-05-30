@@ -5,13 +5,9 @@ using ATMSimulador.Domain.Security;
 
 namespace ATMSimulador.Domain.Validations
 {
-    public class UsuarioDomain
+    public class UsuarioDomain(EncryptionService encryptionService)
     {
-        private readonly EncryptionService _encryptionService;
-        public UsuarioDomain(EncryptionService encryptionService)
-        {
-            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
-        }
+        private readonly EncryptionService _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
 
         public Response<Usuario> CreateUser(UsuarioDto usuarioDto)
         {
