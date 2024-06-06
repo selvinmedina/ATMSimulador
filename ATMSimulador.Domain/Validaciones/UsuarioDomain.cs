@@ -39,7 +39,7 @@ namespace ATMSimulador.Domain.Validations
 
         public bool VerifyPin(string enteredPin, byte[] storedHash)
         {
-            var enteredHash = _encryptionService.DecryptBytes(enteredPin);
+            var enteredHash = _encryptionService.EncryptBytes(enteredPin);
             return storedHash.SequenceEqual(enteredHash);
         }
 

@@ -1,0 +1,12 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+
+#
+POST {{ATMSimulador_HostAddress}}/api/Usuarios1/login
+Content-Type: application/xml
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http:atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:GetLoginRequest/>
+  </soap:Body>
+</soap:Envelope>
+###

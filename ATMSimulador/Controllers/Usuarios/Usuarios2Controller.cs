@@ -1,15 +1,19 @@
-﻿using ATMSimulador.Domain.Dtos;
+﻿using ATMSimulador.Attributes;
+using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Usuarios;
+using ATMSimulador.SOAP;
+using ATMSimulador.SOAP.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace ATMSimulador.Controllers
+namespace ATMSimulador.Controllers.Usuarios
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsuariosController(IUsuariosService usuariosService, IAuthService authService) : ControllerBase
+    [SOAPController(SOAPVersion.v1_2)]
+    public class Usuarios2Controller(
+        IUsuariosService usuariosService, 
+        IAuthService authService) : SOAPControllerBase
     {
         [HttpPost("registro")]
         public async Task<IActionResult> Registro([FromBody] UsuarioDto user)
@@ -24,12 +28,14 @@ namespace ATMSimulador.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] UsuarioDto loginDto)
+        public async Task<IActionResult> LoginAsync(SOAP1_2RequestEnvelope envelope)
         {
-            var response = await usuariosService.LoginAsync(loginDto);
-            if (response.Ok)
+            var respuesta = new SoapResponseEnvelope1_2();
+
+            var usuario = await usuariosService.LoginAsync(new UsuarioDto() { NombreUsuario = "selvin", Pin = "1234" });
+            if (usuario.Ok)
             {
-                var token = authService.GenerateToken(response.Data!.UsuarioId, response.Data.NombreUsuario);
+                var token = authService.GenerateToken(usuario.Data!.UsuarioId, usuario.Data.NombreUsuario);
                 var tokenDescriptor = new JwtSecurityTokenHandler().ReadJwtToken(token);
                 var expires = tokenDescriptor.ValidTo;
 
@@ -40,17 +46,21 @@ namespace ATMSimulador.Controllers
                     Exp = new DateTimeOffset(expires).ToUnixTimeSeconds()
                 };
 
-                return Ok(new
+                respuesta.Body.GetLoginResponse = new()
                 {
-                    access_token = tokenDto.AccessToken,
-                    token_type = tokenDto.TokenType,
-                    expires_in = tokenDto.ExpiresIn,
-                    exp = tokenDto.Exp,
-                    refresh_token = tokenDto.RefreshToken
-                });
+                    Token = new()
+                    {
+                        access_token = tokenDto.AccessToken,
+                        token_type = tokenDto.TokenType,
+                        expires_in = tokenDto.ExpiresIn,
+                        exp = tokenDto.Exp,
+                        refresh_token = tokenDto.RefreshToken
+                    }
+                };
+                return Ok(respuesta);
             }
 
-            return BadRequest(response.Message);
+            return NotFound(respuesta);
         }
 
         [Authorize]
