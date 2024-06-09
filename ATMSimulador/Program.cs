@@ -14,6 +14,7 @@ using ATMSimulador.Domain.Validations;
 using ATMSimulador.Infrastructure.Database;
 using ATMSimulador.Infrastructure;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
+using ATMSimulador.Features.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,10 +74,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var settings = config.GetSection("FileWSDL").Get<WsdlFileOptions>();
-settings.AppPath = app.Environment.ContentRootPath;
 
-app.UseEndpoints(endpoints => {
+if (settings is { })
+    settings.AppPath = app.Environment.ContentRootPath;
+
+app.UseEndpoints(endpoints =>
+{
     endpoints.UseSoapEndpoint<IUsuariosService>("/UsuariosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
+    endpoints.UseSoapEndpoint<IServiciosService>("/ServiciosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.MapControllers();
 });
 
@@ -89,6 +94,8 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
     builder.Services.AddTransient<IAuthService, AuthService>();
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
+    builder.Services.AddTransient<IServiciosService, ServiciosService>();
+
     builder.Services.AddSingleton<EncryptionService>(x =>
     {
         var secretKey = builder.Configuration["Security:SecretKeyEncryptionService"];

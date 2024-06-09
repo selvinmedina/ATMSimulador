@@ -1,22 +1,22 @@
 @ATMSimulador_HostAddress = http://localhost:5059
 
-# Solicitud de Registro
-POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
-Content-Type: text/xml
-SOAPAction: "http://atm.com/service/Registro"
+  # Solicitud de Registro
+  POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+  Content-Type: text/xml
+  SOAPAction: "http://atm.com/service/Registro"
 
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
-  <soap:Header/>
-  <soap:Body>
-    <ser:Registro>
-      <ser:usuarioDto>
-        <ser:NombreUsuario>javier</ser:NombreUsuario>
-        <ser:Pin>5678</ser:Pin>
-      </ser:usuarioDto>
-    </ser:Registro>
-  </soap:Body>
-</soap:Envelope>
-###
+  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+    <soap:Header/>
+    <soap:Body>
+      <ser:Registro>
+        <ser:usuarioDto>
+          <ser:NombreUsuario>javier</ser:NombreUsuario>
+          <ser:Pin>5678</ser:Pin>
+        </ser:usuarioDto>
+      </ser:Registro>
+    </soap:Body>
+  </soap:Envelope>
+  ###
 
 # Solicitud de Login
 POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
@@ -65,4 +65,73 @@ Authorization: Bearer eyfeg35
     </ser:GetUserData>
   </soap:Body>
 </soap:Envelope>
+###
+
+# Crear Servicio
+POST {{ATMSimulador_HostAddress}}/ServiciosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/CrearServicio"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:CrearServicio>
+      <ser:servicioDto>
+        <ser:NombreServicio>Hondutel</ser:NombreServicio>
+        <ser:Descripcion>Pago de servicio publico Hondutel.</ser:Descripcion>
+      </ser:servicioDto>
+    </ser:CrearServicio>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Editar Servicio
+POST {{ATMSimulador_HostAddress}}/ServiciosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/EditarServicio"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:EditarServicio>
+      <ser:servicioDto>
+        <ser:ServicioId>2</ser:ServicioId>
+        <ser:NombreServicio>SANAA</ser:NombreServicio>
+        <ser:Descripcion>Pago de servicio público SANAA</ser:Descripcion>
+      </ser:servicioDto>
+    </ser:EditarServicio>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Listar Todos los Servicios
+POST {{ATMSimulador_HostAddress}}/ServiciosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/ListarServicios"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:ListarServicios xmlns:ser="http://atm.com/service/"/>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Listar Servicio por ID
+POST {{ATMSimulador_HostAddress}}/ServiciosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/ListarServicioPorId"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:ListarServicioPorId>
+      <ser:servicioId>1</ser:servicioId>
+    </ser:ListarServicioPorId>
+  </soap:Body>
+</soap:Envelope>
+
 ###
