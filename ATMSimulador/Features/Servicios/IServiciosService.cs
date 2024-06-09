@@ -1,8 +1,6 @@
 ﻿using ATMSimulador.Domain;
 using ATMSimulador.Domain.Dtos;
 using System.ServiceModel;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace ATMSimulador.Features.Servicios
 {

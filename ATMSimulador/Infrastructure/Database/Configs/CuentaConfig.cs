@@ -20,7 +20,7 @@ namespace ATMSimulador.Infrastructure.Database.Configs
 
             builder.Property(c => c.Saldo)
                 .IsRequired()
-                .HasColumnType("decimal(18,2)");
+                .HasColumnType("varbinary(26)");
 
             builder.Property(c => c.Activa)
                 .IsRequired();

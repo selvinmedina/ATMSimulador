@@ -5,7 +5,7 @@
         public int CuentaId { get; set; }
         public int UsuarioId { get; set; }
         public string NumeroCuenta { get; set; } = null!;
-        public decimal Saldo { get; set; }
+        public byte[] Saldo { get; set; } = null!;
         public bool Activa { get; set; }
 
         public Usuario Usuario { get; set; } = null!;

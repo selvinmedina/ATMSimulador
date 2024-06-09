@@ -1,20 +1,19 @@
-using ATMSimulador.Domain.Dtos;
+using ATMSimulador.Domain.Security;
+using ATMSimulador.Domain.Validaciones;
+using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
+using ATMSimulador.Features.Cuentas;
+using ATMSimulador.Features.Servicios;
 using ATMSimulador.Features.Usuarios;
+using ATMSimulador.Infrastructure;
+using ATMSimulador.Infrastructure.Database;
+using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using SoapCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using Microsoft.OpenApi.Models;
-using ATMSimulador.Domain.Security;
-using ATMSimulador.Domain.Validations;
-using ATMSimulador.Infrastructure.Database;
-using ATMSimulador.Infrastructure;
-using EntityFramework.Infrastructure.Core.UnitOfWork;
-using ATMSimulador.Features.Servicios;
+using SoapCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +81,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.UseSoapEndpoint<IUsuariosService>("/UsuariosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.UseSoapEndpoint<IServiciosService>("/ServiciosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
+    endpoints.UseSoapEndpoint<ICuentasService>("/CuentasService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.MapControllers();
 });
 
@@ -95,6 +95,8 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddTransient<IAuthService, AuthService>();
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
     builder.Services.AddTransient<IServiciosService, ServiciosService>();
+    builder.Services.AddTransient<ICuentasService, CuentasService>();
+
 
     builder.Services.AddSingleton<EncryptionService>(x =>
     {
@@ -105,6 +107,7 @@ void ServiciosApp(WebApplicationBuilder builder)
         return new(secretKey);
     });
     builder.Services.AddSingleton<UsuarioDomain>();
+    builder.Services.AddSingleton<CuentaDomain>();
     builder.Services.AddSingleton(jwtSettings);
     builder.Services.AddHttpContextAccessor();
 
