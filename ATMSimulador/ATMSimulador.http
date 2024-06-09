@@ -1,0 +1,19 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+
+POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/IUsuariosService/LoginAsync"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:LoginAsync>
+      <ser:usuarioDto>
+        <ser:NombreUsuario>selvin</ser:NombreUsuario>
+        <ser:Pin>1234</ser:Pin>
+      </ser:usuarioDto>
+    </ser:LoginAsync>
+  </soap:Body>
+</soap:Envelope>
+###
+

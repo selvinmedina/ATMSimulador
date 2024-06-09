@@ -1,18 +1,20 @@
-#region usings
-using ATMSimulador.Domain.Security;
-using ATMSimulador.Domain.Validations;
+using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Usuarios;
-using ATMSimulador.Infrastructure;
-using ATMSimulador.Infrastructure.Database;
-using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using SoapCore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-#endregion
+using Microsoft.OpenApi.Models;
+using ATMSimulador.Domain.Security;
+using ATMSimulador.Domain.Validations;
+using ATMSimulador.Infrastructure.Database;
+using ATMSimulador.Infrastructure;
+using EntityFramework.Infrastructure.Core.UnitOfWork;
 
-#region Variables
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
@@ -23,14 +25,15 @@ var jwtSettings = new JwtSettings()
     Issuer = config["Security:Jwt:Issuer"]!,
     SecretKey = config["Security:Jwt:SecretKey"]!
 };
-#endregion
 
-#region ServiceProvider
 // Add services to the container.
 builder.Services.AddSignalR();
-
 builder.Services.AddControllers()
     .AddXmlSerializerFormatters();
+builder.Services.AddSoapCore();
+builder.Services.TryAddSingleton<UsuariosService>();
+builder.Services.TryAddSingleton<AuthService>();
+builder.Services.AddMvc();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -48,40 +51,45 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+});
 
 ServiciosApp(builder);
-#endregion
 
 var app = builder.Build();
 
 app.UseCors("AllowAngularApp");
 
-#region Configure
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
 }
-// TODO: Pendiente de agregar cors
+
 app.UseHttpsRedirection();
+app.UseRouting(); // Place this before UseAuthorization
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
-#endregion
+
+var settings = config.GetSection("FileWSDL").Get<WsdlFileOptions>();
+settings.AppPath = app.Environment.ContentRootPath;
+
+app.UseEndpoints(endpoints => {
+    endpoints.UseSoapEndpoint<IUsuariosService>("/UsuariosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
+    endpoints.MapControllers();
+});
 
 app.Run();
 
 void ServiciosApp(WebApplicationBuilder builder)
 {
     builder.Services.AddDbContext<ATMDbContext>(options =>
-    options.UseSqlServer("name=ATMSimulador"));
-
+        options.UseSqlServer("name=ATMSimulador"));
     builder.Services.AddScoped<IUnitOfWork, ApplicationUnitOfWork>();
-
     builder.Services.AddTransient<IAuthService, AuthService>();
-
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
     builder.Services.AddSingleton<EncryptionService>(x =>
     {
@@ -91,7 +99,6 @@ void ServiciosApp(WebApplicationBuilder builder)
 
         return new(secretKey);
     });
-
     builder.Services.AddSingleton<UsuarioDomain>();
     builder.Services.AddSingleton(jwtSettings);
 
