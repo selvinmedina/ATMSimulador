@@ -1,4 +1,5 @@
 #region usings
+using ATMSimulador.Customizations.Binders;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
@@ -29,8 +30,15 @@ var jwtSettings = new JwtSettings()
 #region ServiceProvider
 // Add services to the container.
 builder.Services.AddSignalR();
-builder.Services.AddControllers()
+
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(
+        0, new QueryStringNullOrEmptyModelBinderProvider()
+        );
+})
     .AddXmlSerializerFormatters();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

@@ -13,7 +13,8 @@ namespace ATMSimulador.Controllers.Usuarios
     [SOAPController(SOAPVersion.v1_2)]
     public class Usuarios2Controller(
         IUsuariosService usuariosService, 
-        IAuthService authService) : SOAPControllerBase
+        IAuthService authService,
+        IWebHostEnvironment env) : SOAPControllerBase(env)
     {
         [HttpPost("registro")]
         public async Task<IActionResult> Registro([FromBody] UsuarioDto user)
@@ -30,7 +31,7 @@ namespace ATMSimulador.Controllers.Usuarios
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync(SOAP1_2RequestEnvelope envelope)
         {
-            var respuesta = new SoapResponseEnvelope1_2();
+            var respuesta = CreateSOAPResponseEnvelope();
 
             var usuario = await usuariosService.LoginAsync(new UsuarioDto() { NombreUsuario = "selvin", Pin = "1234" });
             if (usuario.Ok)

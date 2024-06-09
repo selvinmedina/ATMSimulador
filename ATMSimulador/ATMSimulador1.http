@@ -3,10 +3,17 @@
 #
 POST {{ATMSimulador_HostAddress}}/api/Usuarios1/login
 Content-Type: application/xml
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http:atm.com/service/">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>
-    <ser:GetLoginRequest/>
+    <ser:GetLoginRequest>
+      <ser:NombreUsuario>selvin</ser:NombreUsuario>
+      <ser:Pin>1234</ser:Pin>
+    </ser:GetLoginRequest>
   </soap:Body>
 </soap:Envelope>
+###
+# Va a obtener el wsdl
+GET {{ATMSimulador_HostAddress}}/api/Usuarios1?wsdl
+
 ###

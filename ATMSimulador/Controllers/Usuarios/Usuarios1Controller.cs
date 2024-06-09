@@ -5,6 +5,7 @@ using ATMSimulador.Features.Usuarios;
 using ATMSimulador.SOAP;
 using ATMSimulador.SOAP.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -12,9 +13,10 @@ namespace ATMSimulador.Controllers.Usuarios
 {
     [SOAPController(SOAPVersion.v1_1)]
     public class Usuarios1Controller
-        (IUsuariosService usuariosService, 
-        IAuthService authService
-        ) : SOAPControllerBase
+        (IUsuariosService usuariosService,
+        IAuthService authService,
+        IWebHostEnvironment env
+        ) : SOAPControllerBase(env)
     {
         [HttpPost("registro")]
         public async Task<IActionResult> Registro([FromBody] UsuarioDto user)
@@ -31,9 +33,21 @@ namespace ATMSimulador.Controllers.Usuarios
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync(SOAP1_1RequestEnvelope envelope)
         {
-            var respuesta = new SoapResponseEnvelope1_1();
+            var respuesta = CreateSOAPResponseEnvelope();
 
-            var usuario = await usuariosService.LoginAsync(new UsuarioDto() { NombreUsuario = "selvin", Pin = "1234" });
+            if (envelope.Body?.LoginRequest == null)
+            {
+                return BadRequest("Request SOAP invalido.");
+            }
+
+            var loginRequest = envelope.Body.LoginRequest;
+
+            var usuario = await usuariosService.LoginAsync(new UsuarioDto()
+            {
+                NombreUsuario = loginRequest.NombreUsuario!,
+                Pin = loginRequest.Pin!
+            });
+
             if (usuario.Ok)
             {
                 var token = authService.GenerateToken(usuario.Data!.UsuarioId, usuario.Data.NombreUsuario);
