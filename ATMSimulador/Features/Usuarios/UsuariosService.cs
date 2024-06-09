@@ -6,9 +6,7 @@ using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
 
 namespace ATMSimulador.Features.Usuarios
 {
@@ -18,17 +16,20 @@ namespace ATMSimulador.Features.Usuarios
         private readonly ILogger<UsuariosService> _logger;
         private readonly UsuarioDomain _usuarioDomain;
         private readonly IAuthService _authService;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public UsuariosService(
             ILogger<UsuariosService> logger,
             IUnitOfWork unitOfWork,
             UsuarioDomain usuarioDomain,
-            IAuthService authService)
+            IAuthService authService,
+            IHttpContextAccessor httpContextAccessor
+            )
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _usuarioDomain = usuarioDomain;
             _authService = authService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto)
@@ -105,6 +106,28 @@ namespace ATMSimulador.Features.Usuarios
                 _logger.LogError(ex, UsuariosMensajes.MSU_005);
                 return Response<LoginRespuestaDto>.Fail(ex.Message);
             }
+        }
+
+        public Response<UsuarioDataDto> GetUserDataAsync(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken? jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+
+            if (jwtToken == null)
+            {
+                return Response<UsuarioDataDto>.Fail("Invalid token.");
+            }
+
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "userId");
+
+            if (userIdClaim == null)
+            {
+                return Response<UsuarioDataDto>.Fail("User ID not found in the token.");
+            }
+
+            var userId = userIdClaim.Value;
+
+            return Response<UsuarioDataDto>.Success(new UsuarioDataDto { UserId = userId });
         }
 
         public void Dispose()

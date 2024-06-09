@@ -31,8 +31,6 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers()
     .AddXmlSerializerFormatters();
 builder.Services.AddSoapCore();
-builder.Services.TryAddSingleton<UsuariosService>();
-builder.Services.TryAddSingleton<AuthService>();
 builder.Services.AddMvc();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -101,6 +99,7 @@ void ServiciosApp(WebApplicationBuilder builder)
     });
     builder.Services.AddSingleton<UsuarioDomain>();
     builder.Services.AddSingleton(jwtSettings);
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddCors(options =>
     {

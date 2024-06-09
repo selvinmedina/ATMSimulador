@@ -28,6 +28,9 @@ namespace ATMSimulador.Domain.Validations
 
         public Response<bool> CheckLoginDto(UsuarioDto usuarioDto)
         {
+            if(usuarioDto == null)
+                return Response<bool>.Fail(UsuariosMensajes.MSU_001);
+
             if (string.IsNullOrWhiteSpace(usuarioDto.NombreUsuario))
                 return Response<bool>.Fail(UsuariosMensajes.MSU_002);
 
