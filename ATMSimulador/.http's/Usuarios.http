@@ -1,0 +1,54 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+
+  # Solicitud de Registro
+  POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+  Content-Type: text/xml
+  SOAPAction: "http://atm.com/service/Registro"
+
+  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+    <soap:Header/>
+    <soap:Body>
+      <ser:Registro>
+        <ser:usuarioDto>
+          <ser:NombreUsuario>javier</ser:NombreUsuario>
+          <ser:Pin>5678</ser:Pin>
+        </ser:usuarioDto>
+      </ser:Registro>
+    </soap:Body>
+  </soap:Envelope>
+  ###
+
+# Solicitud de Login
+POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/Login"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:Login>
+      <ser:usuarioDto>
+        <ser:NombreUsuario>selvin</ser:NombreUsuario>
+        <ser:Pin>1234</ser:Pin>
+      </ser:usuarioDto>
+    </ser:Login>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Solicitud para Obtener Datos del Usuario
+POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/GetUserData"
+Authorization: Bearer eyfeg35
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:GetUserData xmlns:ser="http://atm.com/service/">
+      <ser:token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiMDhlMjQ2NmYtOGVmYS00ZTZhLWI3MmMtOTAwOWNiNTRhNjY0Iiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTcxMTk5LCJleHAiOjE3MTg1NzU5OTksImlhdCI6MTcxNzk3MTE5OSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.-_1KVMzfJcK2SBj5T2jbvFEuFvOTDgr7P8nUmGEEp20</ser:token>
+    </ser:GetUserData>
+  </soap:Body>
+</soap:Envelope>
+###

@@ -1,0 +1,19 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+
+# Transferir
+POST {{ATMSimulador_HostAddress}}/CuentasService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/Transferir"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:Transferir>
+      <ser:cuentaOrigenId>3</ser:cuentaOrigenId>
+      <ser:cuentaDestinoId>5</ser:cuentaDestinoId>
+      <ser:monto>100.00</ser:monto>
+    </ser:Transferir>
+  </soap:Body>
+</soap:Envelope>
+
+###

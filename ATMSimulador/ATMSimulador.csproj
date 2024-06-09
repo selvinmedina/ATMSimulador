@@ -25,4 +25,11 @@
     <ProjectReference Include="..\ATMSimulador.Domain\ATMSimulador.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include=".http%27s\Usuarios.http" />
+    <None Include=".http%27s\Cuentas.http" />
+    <None Include=".http%27s\Servicios.http" />
+    <None Include=".http%27s\Transferencias y pagos.http" />
+  </ItemGroup>
+
 </Project>

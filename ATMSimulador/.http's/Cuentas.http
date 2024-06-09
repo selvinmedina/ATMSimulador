@@ -1,0 +1,55 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+
+
+# Aperturar Cuenta
+POST {{ATMSimulador_HostAddress}}/CuentasService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/AperturarCuenta"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:AperturarCuenta>
+      <ser:cuentaDto>
+        <ser:UsuarioId>4</ser:UsuarioId>
+        <ser:NumeroCuenta>0000000002</ser:NumeroCuenta>
+        <ser:Saldo>0.00</ser:Saldo>
+        <ser:Activa>true</ser:Activa>
+      </ser:cuentaDto>
+    </ser:AperturarCuenta>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Listar Cuentas
+POST {{ATMSimulador_HostAddress}}/CuentasService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/ListarCuentas"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:ListarCuentas>
+      <ser:usuarioId>4</ser:usuarioId>
+    </ser:ListarCuentas>
+  </soap:Body>
+</soap:Envelope>
+
+###
+
+# Consultar Saldo
+POST {{ATMSimulador_HostAddress}}/CuentasService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/ConsultarSaldo"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:ConsultarSaldo>
+      <ser:cuentaId>5</ser:cuentaId>
+    </ser:ConsultarSaldo>
+  </soap:Body>
+</soap:Envelope>
+
+###
