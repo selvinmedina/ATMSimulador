@@ -1,5 +1,4 @@
 #region usings
-using ATMSimulador.Customizations.Binders;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
@@ -10,7 +9,6 @@ using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
 using System.Text;
 #endregion
 
@@ -31,12 +29,7 @@ var jwtSettings = new JwtSettings()
 // Add services to the container.
 builder.Services.AddSignalR();
 
-builder.Services.AddControllers(options =>
-{
-    options.ModelBinderProviders.Insert(
-        0, new QueryStringNullOrEmptyModelBinderProvider()
-        );
-})
+builder.Services.AddControllers()
     .AddXmlSerializerFormatters();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

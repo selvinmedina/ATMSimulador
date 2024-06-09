@@ -1,20 +1,19 @@
-﻿using ATMSimulador.Attributes;
-using ATMSimulador.Domain.Dtos;
+﻿using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Usuarios;
-using ATMSimulador.SOAP;
-using ATMSimulador.SOAP.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace ATMSimulador.Controllers.Usuarios
 {
-    [SOAPController(SOAPVersion.v1_2)]
-    public class Usuarios2Controller(
-        IUsuariosService usuariosService, 
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsuariosController
+        (IUsuariosService usuariosService,
         IAuthService authService,
-        IWebHostEnvironment env) : SOAPControllerBase(env)
+        IWebHostEnvironment env
+        ) : ControllerBase
     {
         [HttpPost("registro")]
         public async Task<IActionResult> Registro([FromBody] UsuarioDto user)
@@ -29,11 +28,11 @@ namespace ATMSimulador.Controllers.Usuarios
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync(SOAP1_2RequestEnvelope envelope)
+        public async Task<IActionResult> LoginAsync(UsuarioDto dto)
         {
-            var respuesta = CreateSOAPResponseEnvelope();
 
-            var usuario = await usuariosService.LoginAsync(new UsuarioDto() { NombreUsuario = "selvin", Pin = "1234" });
+            var usuario = await usuariosService.LoginAsync(dto);
+
             if (usuario.Ok)
             {
                 var token = authService.GenerateToken(usuario.Data!.UsuarioId, usuario.Data.NombreUsuario);
@@ -47,21 +46,18 @@ namespace ATMSimulador.Controllers.Usuarios
                     Exp = new DateTimeOffset(expires).ToUnixTimeSeconds()
                 };
 
-                respuesta.Body.GetLoginResponse = new()
+                var respuesta = new LoginRespuestaDto()
                 {
-                    Token = new()
-                    {
-                        access_token = tokenDto.AccessToken,
-                        token_type = tokenDto.TokenType,
-                        expires_in = tokenDto.ExpiresIn,
-                        exp = tokenDto.Exp,
-                        refresh_token = tokenDto.RefreshToken
-                    }
+                    access_token = tokenDto.AccessToken,
+                    token_type = tokenDto.TokenType,
+                    expires_in = tokenDto.ExpiresIn,
+                    exp = tokenDto.Exp,
+                    refresh_token = tokenDto.RefreshToken
                 };
                 return Ok(respuesta);
             }
 
-            return NotFound(respuesta);
+            return NotFound();
         }
 
         [Authorize]
