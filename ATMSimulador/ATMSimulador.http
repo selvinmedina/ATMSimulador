@@ -183,7 +183,7 @@ SOAPAction: "http://atm.com/service/Transferir"
   <soap:Body>
     <ser:Transferir>
       <ser:cuentaOrigenId>3</ser:cuentaOrigenId>
-      <ser:cuentaDestinoId>4</ser:cuentaDestinoId>
+      <ser:cuentaDestinoId>5</ser:cuentaDestinoId>
       <ser:monto>100.00</ser:monto>
     </ser:Transferir>
   </soap:Body>
@@ -200,7 +200,7 @@ SOAPAction: "http://atm.com/service/ConsultarSaldo"
   <soap:Header/>
   <soap:Body>
     <ser:ConsultarSaldo>
-      <ser:cuentaId>4</ser:cuentaId>
+      <ser:cuentaId>5</ser:cuentaId>
     </ser:ConsultarSaldo>
   </soap:Body>
 </soap:Envelope>

@@ -2,6 +2,7 @@
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
 using ATMSimulador.Domain.Mensajes;
+using ATMSimulador.Domain.Transacciones;
 using ATMSimulador.Domain.Validaciones;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -56,13 +57,38 @@ namespace ATMSimulador.Features.Cuentas
 
             try
             {
-                cuentaOrigen.Saldo = _cuentaDomain.EncryptSaldo(_cuentaDomain.DecryptSaldo(cuentaOrigen.Saldo) - monto);
-                cuentaDestino.Saldo = _cuentaDomain.EncryptSaldo(_cuentaDomain.DecryptSaldo(cuentaDestino.Saldo) + monto);
+                var saldoOrigen = _cuentaDomain.DecryptSaldo(cuentaOrigen.Saldo) - monto;
+                var saldoDestino = _cuentaDomain.DecryptSaldo(cuentaDestino.Saldo) + monto;
+
+                cuentaOrigen.Saldo = _cuentaDomain.EncryptSaldo(saldoOrigen);
+                cuentaDestino.Saldo = _cuentaDomain.EncryptSaldo(saldoDestino);
 
                 _unitOfWork.Repository<Cuenta>().Update(cuentaOrigen);
                 _unitOfWork.Repository<Cuenta>().Update(cuentaDestino);
-                await _unitOfWork.SaveAsync();
 
+                // Registrar transacción para la cuenta de origen
+                var transaccionRetiro = new Transaccion
+                {
+                    CuentaId = cuentaOrigenId,
+                    TipoTransaccion = string.Format(TransaccionTipos.TEF_A, cuentaDestino.NumeroCuenta),
+                    Monto = monto,
+                    FechaTransaccion = DateTime.UtcNow,
+                    Estado = "COMPLETADO"
+                };
+                _unitOfWork.Repository<Transaccion>().Add(transaccionRetiro);
+
+                // Registrar transacción para la cuenta de destino
+                var transaccionDeposito = new Transaccion
+                {
+                    CuentaId = cuentaDestinoId,
+                    TipoTransaccion = string.Format(TransaccionTipos.TEF_DE, cuentaOrigen.NumeroCuenta),
+                    Monto = monto,
+                    FechaTransaccion = DateTime.UtcNow,
+                    Estado = "COMPLETADO"
+                };
+                _unitOfWork.Repository<Transaccion>().Add(transaccionDeposito);
+
+                await _unitOfWork.SaveAsync();
                 _unitOfWork.Commit();
                 return Response<bool>.Success(true);
             }
@@ -107,17 +133,32 @@ namespace ATMSimulador.Features.Cuentas
             try
             {
                 _unitOfWork.Repository<Cuenta>().Add(cuenta);
-                await _unitOfWork.SaveAsync();
+                await _unitOfWork.SaveAsync(); // Guarda la cuenta en la base de datos
+
+                // Registrar transacción de apertura
+                var transaccionApertura = new Transaccion
+                {
+                    CuentaId = cuenta.CuentaId,
+                    TipoTransaccion = TransaccionTipos.APERTURA,
+                    Monto = cuentaDto.Saldo,
+                    FechaTransaccion = DateTime.UtcNow,
+                    Estado = "COMPLETADO"
+                };
+
+                _unitOfWork.Repository<Transaccion>().Add(transaccionApertura);
+                await _unitOfWork.SaveAsync(); // Guarda la transacción en la base de datos
 
                 cuentaDto.CuentaId = cuenta.CuentaId;
                 return Response<CuentaDto>.Success(cuentaDto);
             }
             catch (Exception ex)
             {
+                _unitOfWork.RollBack();
                 _logger.LogError(ex, CuentasMensajes.MSC_001);
                 return Response<CuentaDto>.Fail(ex.Message);
             }
         }
+
 
         public void Dispose()
         {
