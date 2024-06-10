@@ -60,12 +60,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwia
 POST {{ATMSimulador_HostAddress}}/ServiciosService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/ListarServicioPorId"
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiZmM3ZGM5YTgtZWQ1OC00YjJkLTkxZWYtYTliYTk1YTI5MzEzIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg5OTM5LCJleHAiOjE3MTg1OTQ3MzksImlhdCI6MTcxNzk4OTkzOSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.aAfjZbELfPeywqOzE0v9hP9GWAsvWeehaGCrypW55es
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>
     <ser:ListarServicioPorId>
-      <ser:servicioId>1</ser:servicioId>
+      <ser:servicioId>7o6nvrQKrX4=</ser:servicioId>
     </ser:ListarServicioPorId>
   </soap:Body>
 </soap:Envelope>
