@@ -31,9 +31,10 @@ namespace ATMSimulador.Middlewares
                     var desencryptedObjects = DecryptSoapBodyToObjects(requestBody);
                     foreach (var keyValue in desencryptedObjects)
                     {
-                        if (keyValue.Key.EndsWith("Dto", StringComparison.OrdinalIgnoreCase))
+                        // Convertir el valor a JSON si es un objeto DTO
+                        if (keyValue.Key.EndsWith("Dto", StringComparison.OrdinalIgnoreCase) && keyValue.Value is Dictionary<string, object> dtoValue)
                         {
-                            context.Items[keyValue.Key] = JsonConvert.SerializeObject(keyValue.Value);
+                            context.Items[keyValue.Key] = JsonConvert.SerializeObject(ToCamelCaseDictionary(dtoValue));
                         }
                         else
                         {
@@ -82,6 +83,11 @@ namespace ATMSimulador.Middlewares
             {
                 return _encryptionService.Decrypt(element.Value);
             }
+        }
+
+        private Dictionary<string, object> ToCamelCaseDictionary(Dictionary<string, object> dict)
+        {
+            return dict.ToDictionary(kv => Char.ToLowerInvariant(kv.Key[0]) + kv.Key.Substring(1), kv => kv.Value);
         }
     }
 }

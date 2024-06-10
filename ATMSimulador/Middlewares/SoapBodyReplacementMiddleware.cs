@@ -41,7 +41,13 @@ namespace ATMSimulador.Middlewares
             var bodyElement = doc.Descendants(XName.Get("Body", "http://schemas.xmlsoap.org/soap/envelope/")).FirstOrDefault();
             if (bodyElement != null)
             {
-                DecryptXmlElement(bodyElement);
+                foreach (var methodElement in bodyElement.Elements())
+                {
+                    foreach (var parameterElement in methodElement.Elements())
+                    {
+                        DecryptXmlElement(parameterElement);
+                    }
+                }
             }
 
             return doc.ToString();
