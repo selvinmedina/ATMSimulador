@@ -17,3 +17,24 @@ SOAPAction: "http://atm.com/service/Transferir"
 </soap:Envelope>
 
 ###
+@ATMSimulador_HostAddress = http://localhost:5059
+
+# Realizar Pago
+POST {{ATMSimulador_HostAddress}}/PagosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/RealizarPago"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:RealizarPago>
+      <ser:pagoDto>
+        <ser:ServicioId>1</ser:ServicioId>
+        <ser:CuentaId>3</ser:CuentaId>
+        <ser:Monto>150.00</ser:Monto>
+        <ser:FechaPago>2024-06-09T00:00:00</ser:FechaPago>
+      </ser:pagoDto>
+    </ser:RealizarPago>
+  </soap:Body>
+</soap:Envelope>
+###

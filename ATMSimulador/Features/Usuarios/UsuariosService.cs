@@ -151,7 +151,7 @@ namespace ATMSimulador.Features.Usuarios
             };
 
             _unitOfWork.Repository<Auditoria>().Add(auditoria);
-            _unitOfWork.SaveAsync().Wait();
+            _unitOfWork.SaveAsync();
         }
 
         public void Dispose()

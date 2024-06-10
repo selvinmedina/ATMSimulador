@@ -96,7 +96,7 @@ namespace ATMSimulador.Features.Pagos
             };
 
             _unitOfWork.Repository<Auditoria>().Add(auditoria);
-            _unitOfWork.SaveAsync().Wait();
+            _unitOfWork.SaveAsync();
         }
 
         public void Dispose()
