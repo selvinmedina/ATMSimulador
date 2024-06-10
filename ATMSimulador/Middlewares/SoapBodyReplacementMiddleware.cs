@@ -65,7 +65,18 @@ namespace ATMSimulador.Middlewares
                 {
                     foreach (var parameterElement in methodElement.Elements())
                     {
-                        DecryptXmlElement(parameterElement);
+                        // Desencriptar elementos primitivos directamente
+                        if (!parameterElement.HasElements)
+                        {
+                            if (!string.IsNullOrEmpty(parameterElement.Value))
+                            {
+                                parameterElement.Value = _encryptionService.Decrypt(parameterElement.Value);
+                            }
+                        }
+                        else
+                        {
+                            DecryptXmlElement(parameterElement);
+                        }
                     }
                 }
             }
