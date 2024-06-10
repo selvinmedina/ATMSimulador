@@ -1,6 +1,5 @@
+using ATMSimulador.Domain.Dominios;
 using ATMSimulador.Domain.Security;
-using ATMSimulador.Domain.Validaciones;
-using ATMSimulador.Domain.Validations;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Cuentas;
 using ATMSimulador.Features.Servicios;

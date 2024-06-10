@@ -3,7 +3,7 @@ using ATMSimulador.Domain.Entities;
 using ATMSimulador.Domain.Mensajes;
 using ATMSimulador.Domain.Security;
 
-namespace ATMSimulador.Domain.Validations
+namespace ATMSimulador.Domain.Dominios
 {
     public class UsuarioDomain(EncryptionService encryptionService)
     {
