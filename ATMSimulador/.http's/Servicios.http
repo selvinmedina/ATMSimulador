@@ -10,6 +10,7 @@ SOAPAction: "http://atm.com/service/CrearServicio"
   <soap:Body>
     <ser:CrearServicio>
       <ser:servicioDto>
+        <ser:UsuarioId>1</ser:UsuarioId>
         <ser:NombreServicio>Hondutel</ser:NombreServicio>
         <ser:Descripcion>Pago de servicio publico Hondutel.</ser:Descripcion>
       </ser:servicioDto>
@@ -29,6 +30,7 @@ SOAPAction: "http://atm.com/service/EditarServicio"
   <soap:Body>
     <ser:EditarServicio>
       <ser:servicioDto>
+        <ser:UsuarioId>1</ser:UsuarioId>
         <ser:ServicioId>2</ser:ServicioId>
         <ser:NombreServicio>SANAA</ser:NombreServicio>
         <ser:Descripcion>Pago de servicio público SANAA</ser:Descripcion>

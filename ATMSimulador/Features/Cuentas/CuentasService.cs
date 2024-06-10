@@ -34,6 +34,7 @@ namespace ATMSimulador.Features.Cuentas
             }
 
             var saldo = _cuentaDomain.DecryptSaldo(cuenta.Saldo);
+            RegistrarAuditoria(cuenta.UsuarioId, "Consulta de Saldo", $"Consulta de saldo para la cuenta {cuenta.NumeroCuenta}");
             return Response<decimal>.Success(saldo);
         }
 
@@ -90,6 +91,10 @@ namespace ATMSimulador.Features.Cuentas
 
                 await _unitOfWork.SaveAsync();
                 _unitOfWork.Commit();
+
+                RegistrarAuditoria(cuentaOrigen.UsuarioId, "Transferencia", $"Transferencia de {monto} desde la cuenta {cuentaOrigen.NumeroCuenta} a la cuenta {cuentaDestino.NumeroCuenta}");
+                RegistrarAuditoria(cuentaDestino.UsuarioId, "Transferencia Recibida", $"Transferencia recibida de {monto} desde la cuenta {cuentaOrigen.NumeroCuenta}");
+
                 return Response<bool>.Success(true);
             }
             catch (Exception ex)
@@ -115,6 +120,8 @@ namespace ATMSimulador.Features.Cuentas
                 Saldo = _cuentaDomain.DecryptSaldo(c.Saldo),
                 Activa = c.Activa
             }).ToList();
+
+            RegistrarAuditoria(usuarioId, "Listar Cuentas", "Listado de cuentas del usuario");
 
             return Response<List<CuentaDto>>.Success(cuentasDto);
         }
@@ -149,6 +156,9 @@ namespace ATMSimulador.Features.Cuentas
                 await _unitOfWork.SaveAsync(); // Guarda la transacción en la base de datos
 
                 cuentaDto.CuentaId = cuenta.CuentaId;
+
+                RegistrarAuditoria(cuenta.UsuarioId, "Apertura de Cuenta", $"Apertura de cuenta {cuenta.NumeroCuenta} con saldo inicial {cuentaDto.Saldo}");
+
                 return Response<CuentaDto>.Success(cuentaDto);
             }
             catch (Exception ex)
@@ -159,6 +169,19 @@ namespace ATMSimulador.Features.Cuentas
             }
         }
 
+        private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)
+        {
+            var auditoria = new Auditoria
+            {
+                UsuarioId = usuarioId,
+                TipoActividad = tipoActividad,
+                FechaActividad = DateTime.UtcNow,
+                Descripcion = descripcion
+            };
+
+            _unitOfWork.Repository<Auditoria>().Add(auditoria);
+            _unitOfWork.SaveAsync(); // Guarda la auditoría en la base de datos
+        }
 
         public void Dispose()
         {

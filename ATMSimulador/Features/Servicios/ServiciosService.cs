@@ -1,6 +1,7 @@
 ﻿using ATMSimulador.Domain;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
+using ATMSimulador.Domain.Mensajes;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,9 @@ namespace ATMSimulador.Features.Servicios
                 await _unitOfWork.SaveAsync();
 
                 servicioDto.ServicioId = servicio.ServicioId;
+
+                RegistrarAuditoria(servicioDto.UsuarioId, "Crear Servicio", $"Servicio {servicioDto.NombreServicio} creado.");
+
                 return Response<ServicioDto>.Success(servicioDto);
             }
             catch (Exception ex)
@@ -59,6 +63,8 @@ namespace ATMSimulador.Features.Servicios
                 _unitOfWork.Repository<Servicio>().Update(servicio);
                 await _unitOfWork.SaveAsync();
 
+                RegistrarAuditoria(servicioDto.UsuarioId, "Editar Servicio", $"Servicio {servicioDto.NombreServicio} editado.");
+
                 return Response<ServicioDto>.Success(servicioDto);
             }
             catch (Exception ex)
@@ -79,6 +85,8 @@ namespace ATMSimulador.Features.Servicios
                     NombreServicio = s.NombreServicio,
                     Descripcion = s.Descripcion
                 }).ToList();
+
+                // No se necesita UsuarioId para listar, así que no registramos auditoría aquí.
 
                 return Response<List<ServicioDto>>.Success(serviciosDto);
             }
@@ -105,7 +113,23 @@ namespace ATMSimulador.Features.Servicios
                 Descripcion = servicio.Descripcion
             };
 
+            // No se necesita UsuarioId para listar por ID, así que no registramos auditoría aquí.
+
             return Response<ServicioDto>.Success(servicioDto);
+        }
+
+        private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)
+        {
+            var auditoria = new Auditoria
+            {
+                UsuarioId = usuarioId,
+                TipoActividad = tipoActividad,
+                FechaActividad = DateTime.UtcNow,
+                Descripcion = descripcion
+            };
+
+            _unitOfWork.Repository<Auditoria>().Add(auditoria);
+            _unitOfWork.SaveAsync(); // Guarda la auditoría en la base de datos
         }
 
         public void Dispose()
