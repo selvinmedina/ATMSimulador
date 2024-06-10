@@ -4,6 +4,7 @@ using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Cuentas;
 using ATMSimulador.Features.Pagos;
 using ATMSimulador.Features.Servicios;
+using ATMSimulador.Features.Transacciones;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
@@ -83,6 +84,7 @@ app.UseEndpoints(endpoints =>
     endpoints.UseSoapEndpoint<IServiciosService>("/ServiciosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.UseSoapEndpoint<ICuentasService>("/CuentasService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.UseSoapEndpoint<IPagosService>("/PagosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
+    endpoints.UseSoapEndpoint<ITransaccionesService>("/TransaccionesService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.MapControllers();
 });
 
@@ -98,6 +100,7 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddTransient<IServiciosService, ServiciosService>();
     builder.Services.AddTransient<ICuentasService, CuentasService>();
     builder.Services.AddTransient<IPagosService, PagosService>();
+    builder.Services.AddTransient<ITransaccionesService, TransaccionesService>();
 
     builder.Services.AddSingleton<EncryptionService>(x =>
     {

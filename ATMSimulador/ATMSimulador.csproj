@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include=".http%27s\Transacciones.http" />
     <None Include=".http%27s\Usuarios.http" />
     <None Include=".http%27s\Cuentas.http" />
     <None Include=".http%27s\Servicios.http" />

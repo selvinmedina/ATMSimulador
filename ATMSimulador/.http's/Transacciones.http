@@ -1,0 +1,16 @@
+@ATMSimulador_HostAddress = http://localhost:5059
+# Listar Transacciones
+POST {{ATMSimulador_HostAddress}}/TransaccionesService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/ListarTransacciones"
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:ListarTransacciones>
+      <ser:cuentaId>3</ser:cuentaId>
+    </ser:ListarTransacciones>
+  </soap:Body>
+</soap:Envelope>
+
+###

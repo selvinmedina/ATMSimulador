@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Usage", "ASP0014:Suggest using top level route registrations", Justification = "<pendiente>")]
+[assembly: SuppressMessage("Usage", "ASP0014:Suggest using top level route registrations", Justification = "Luego se va a acceder a los datos de la instancia.")]
