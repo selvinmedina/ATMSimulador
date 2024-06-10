@@ -67,7 +67,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
 }
-app.UseMiddleware<SoapAuthenticationMiddleware>();
 
 app.UseRouting();
 
@@ -78,6 +77,10 @@ var settings = config.GetSection("FileWSDL").Get<WsdlFileOptions>();
 
 if (settings is { })
     settings.AppPath = app.Environment.ContentRootPath;
+
+app.UseMiddleware<TokenExtractionMiddleware>();
+app.UseMiddleware<SoapDecryptionMiddleware>();
+app.UseMiddleware<SoapBodyReplacementMiddleware>();
 
 app.UseEndpoints(endpoints =>
 {

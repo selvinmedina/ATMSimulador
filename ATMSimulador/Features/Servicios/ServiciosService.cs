@@ -10,13 +10,16 @@ namespace ATMSimulador.Features.Servicios
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ServiciosService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ServiciosService(
             ILogger<ServiciosService> logger,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Response<ServicioDto>> CrearServicioAsync(ServicioDto servicioDto)
@@ -98,6 +101,11 @@ namespace ATMSimulador.Features.Servicios
 
         public async Task<Response<ServicioDto>> ListarServicioPorIdAsync(int servicioId)
         {
+            var desencryptedServicioId = _httpContextAccessor.HttpContext?.Items["servicioId"]?.ToString();
+            if (!int.TryParse(desencryptedServicioId, out servicioId))
+            {
+                return Response<ServicioDto>.Fail("Invalid service ID");
+            }
             var servicio = await _unitOfWork.Repository<Servicio>().AsQueryable().FirstOrDefaultAsync(x => x.ServicioId == servicioId);
 
             if (servicio == null)
