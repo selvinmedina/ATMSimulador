@@ -24,6 +24,11 @@ namespace ATMSimulador.Features.Servicios
 
         public async Task<Response<ServicioDto>> CrearServicioAsync(ServicioDto servicioDto)
         {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            if (!int.TryParse(userId, out int usuarioId))
+            {
+                return Response<ServicioDto>.Fail("Invalid user ID");
+            }
             var servicio = new Servicio
             {
                 NombreServicio = servicioDto.NombreServicio,
@@ -37,7 +42,7 @@ namespace ATMSimulador.Features.Servicios
 
                 servicioDto.ServicioId = servicio.ServicioId;
 
-                RegistrarAuditoria(servicioDto.UsuarioId, "Crear Servicio", $"Servicio {servicioDto.NombreServicio} creado.");
+                RegistrarAuditoria(usuarioId, "Crear Servicio", $"Servicio {servicioDto.NombreServicio} creado.");
 
                 return Response<ServicioDto>.Success(servicioDto);
             }
@@ -50,6 +55,12 @@ namespace ATMSimulador.Features.Servicios
 
         public async Task<Response<ServicioDto>> EditarServicioAsync(ServicioDto servicioDto)
         {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            if (!int.TryParse(userId, out int usuarioId))
+            {
+                return Response<ServicioDto>.Fail("Invalid user ID");
+            }
+
             var servicio = await _unitOfWork.Repository<Servicio>().AsQueryable().FirstOrDefaultAsync(x => x.ServicioId == servicioDto.ServicioId);
 
             if (servicio == null)
@@ -65,7 +76,7 @@ namespace ATMSimulador.Features.Servicios
                 _unitOfWork.Repository<Servicio>().Update(servicio);
                 await _unitOfWork.SaveAsync();
 
-                RegistrarAuditoria(servicioDto.UsuarioId, "Editar Servicio", $"Servicio {servicioDto.NombreServicio} editado.");
+                RegistrarAuditoria(usuarioId, "Editar Servicio", $"Servicio {servicioDto.NombreServicio} editado.");
 
                 return Response<ServicioDto>.Success(servicioDto);
             }

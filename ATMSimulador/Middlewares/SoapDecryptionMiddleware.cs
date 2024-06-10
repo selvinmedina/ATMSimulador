@@ -1,4 +1,5 @@
 ﻿using ATMSimulador.Domain.Security;
+using Newtonsoft.Json;
 using System.Xml.Linq;
 
 namespace ATMSimulador.Middlewares
@@ -27,10 +28,17 @@ namespace ATMSimulador.Middlewares
 
                 if (!string.IsNullOrEmpty(requestBody))
                 {
-                    var desencryptedValues = DecryptSoapBody(requestBody);
-                    foreach (var keyValue in desencryptedValues)
+                    var desencryptedObjects = DecryptSoapBodyToObjects(requestBody);
+                    foreach (var keyValue in desencryptedObjects)
                     {
-                        context.Items[keyValue.Key] = keyValue.Value;
+                        if (keyValue.Key.EndsWith("Dto", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Items[keyValue.Key] = JsonConvert.SerializeObject(keyValue.Value);
+                        }
+                        else
+                        {
+                            context.Items[keyValue.Key] = keyValue.Value;
+                        }
                     }
                 }
             }
@@ -38,33 +46,41 @@ namespace ATMSimulador.Middlewares
             await _next(context);
         }
 
-        private Dictionary<string, string> DecryptSoapBody(string soapBody)
+        private Dictionary<string, object> DecryptSoapBodyToObjects(string soapBody)
         {
-            var desencryptedValues = new Dictionary<string, string>();
+            var desencryptedValues = new Dictionary<string, object>();
             var doc = XDocument.Parse(soapBody);
             var bodyElement = doc.Descendants(XName.Get("Body", "http://schemas.xmlsoap.org/soap/envelope/")).FirstOrDefault();
             if (bodyElement != null)
             {
-                DecryptXmlElement(bodyElement, desencryptedValues);
+                foreach (var methodElement in bodyElement.Elements())
+                {
+                    foreach (var parameterElement in methodElement.Elements())
+                    {
+                        var key = parameterElement.Name.LocalName;
+                        var value = DecryptXmlElementToObject(parameterElement);
+                        desencryptedValues[key] = value;
+                    }
+                }
             }
 
             return desencryptedValues;
         }
 
-        private void DecryptXmlElement(XElement element, Dictionary<string, string> desencryptedValues)
+        private object DecryptXmlElementToObject(XElement element)
         {
-            foreach (var subElement in element.Elements())
+            if (element.HasElements)
             {
-                if (!string.IsNullOrEmpty(subElement.Value))
+                var dict = new Dictionary<string, object>();
+                foreach (var subElement in element.Elements())
                 {
-                    var desencryptedValue = _encryptionService.Decrypt(subElement.Value);
-                    desencryptedValues[subElement.Name.LocalName] = desencryptedValue;
+                    dict[subElement.Name.LocalName] = DecryptXmlElementToObject(subElement);
                 }
-
-                if (subElement.HasElements)
-                {
-                    DecryptXmlElement(subElement, desencryptedValues);
-                }
+                return dict;
+            }
+            else
+            {
+                return _encryptionService.Decrypt(element.Value);
             }
         }
     }
