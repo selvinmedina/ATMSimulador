@@ -17,6 +17,7 @@ namespace ATMSimulador.Features.Transacciones
         {
             try
             {
+                // TODO: Validar que se el usuario id el que esta listando las transacciones
                 var transacciones = await _unitOfWork.Repository<Transaccion>()
                     .AsQueryable()
                     .Where(t => t.CuentaId == cuentaId)

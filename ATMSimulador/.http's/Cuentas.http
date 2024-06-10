@@ -5,16 +5,15 @@
 POST {{ATMSimulador_HostAddress}}/CuentasService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/AperturarCuenta"
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiZmM3ZGM5YTgtZWQ1OC00YjJkLTkxZWYtYTliYTk1YTI5MzEzIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg5OTM5LCJleHAiOjE3MTg1OTQ3MzksImlhdCI6MTcxNzk4OTkzOSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.aAfjZbELfPeywqOzE0v9hP9GWAsvWeehaGCrypW55es
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3IiwianRpIjoiNDA4NTUyMzEtNDRkZS00YTBlLWFmNzAtZGJhZDk0NGQ3OGRlIiwic3ViIjoieW9uaSIsIm5iZiI6MTcxODAwMjEzNiwiZXhwIjoxNzE4NjA2OTM2LCJpYXQiOjE3MTgwMDIxMzYsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.nuRNDTyInlZIszJTpJaeZ5ITAh-_Y9k4O-g89EI21jU
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>
     <ser:AperturarCuenta>
       <ser:cuentaDto>
-        <ser:UsuarioId>KPA35l/+d44=</ser:UsuarioId>
-        <ser:NumeroCuenta>cm5QHbqoyca2oQ5kkCqNGw==</ser:NumeroCuenta>
-        <ser:Saldo>7DZyQ9sfBUQ=</ser:Saldo>
+        <ser:NumeroCuenta>cm5QHbqoycZICYAPF9FR+w==</ser:NumeroCuenta>
+        <ser:Saldo>Q0Gk1OflDdk=</ser:Saldo>
         <ser:Activa>blABf9FyDas=</ser:Activa>
       </ser:cuentaDto>
     </ser:AperturarCuenta>
@@ -27,13 +26,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwia
 POST {{ATMSimulador_HostAddress}}/CuentasService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/ListarCuentas"
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiZmM3ZGM5YTgtZWQ1OC00YjJkLTkxZWYtYTliYTk1YTI5MzEzIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg5OTM5LCJleHAiOjE3MTg1OTQ3MzksImlhdCI6MTcxNzk4OTkzOSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.aAfjZbELfPeywqOzE0v9hP9GWAsvWeehaGCrypW55es
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3IiwianRpIjoiNDA4NTUyMzEtNDRkZS00YTBlLWFmNzAtZGJhZDk0NGQ3OGRlIiwic3ViIjoieW9uaSIsIm5iZiI6MTcxODAwMjEzNiwiZXhwIjoxNzE4NjA2OTM2LCJpYXQiOjE3MTgwMDIxMzYsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.nuRNDTyInlZIszJTpJaeZ5ITAh-_Y9k4O-g89EI21jU
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>
     <ser:ListarCuentas>
-      <ser:usuarioId>KPA35l/+d44=</ser:usuarioId>
     </ser:ListarCuentas>
   </soap:Body>
 </soap:Envelope>
@@ -44,13 +42,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwia
 POST {{ATMSimulador_HostAddress}}/CuentasService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/ConsultarSaldo"
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiZmM3ZGM5YTgtZWQ1OC00YjJkLTkxZWYtYTliYTk1YTI5MzEzIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg5OTM5LCJleHAiOjE3MTg1OTQ3MzksImlhdCI6MTcxNzk4OTkzOSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.aAfjZbELfPeywqOzE0v9hP9GWAsvWeehaGCrypW55es
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3IiwianRpIjoiNDA4NTUyMzEtNDRkZS00YTBlLWFmNzAtZGJhZDk0NGQ3OGRlIiwic3ViIjoieW9uaSIsIm5iZiI6MTcxODAwMjEzNiwiZXhwIjoxNzE4NjA2OTM2LCJpYXQiOjE3MTgwMDIxMzYsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.nuRNDTyInlZIszJTpJaeZ5ITAh-_Y9k4O-g89EI21jU
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>
     <ser:ConsultarSaldo>
-      <ser:cuentaId>36xwK1wtAuw=</ser:cuentaId>
+      <ser:cuentaId>3wv1JXnnXkI=</ser:cuentaId>
     </ser:ConsultarSaldo>
   </soap:Body>
 </soap:Envelope>

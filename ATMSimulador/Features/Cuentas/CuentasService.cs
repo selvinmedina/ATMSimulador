@@ -12,15 +12,18 @@ namespace ATMSimulador.Features.Cuentas
     public class CuentasService(
         ILogger<CuentasService> logger,
         IUnitOfWork unitOfWork,
-        CuentaDomain cuentaDomain) : ICuentasService
+        CuentaDomain cuentaDomain,
+        IHttpContextAccessor httpContextAccessor) : ICuentasService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<CuentasService> _logger = logger;
         private readonly CuentaDomain _cuentaDomain = cuentaDomain;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<Response<decimal>> ConsultarSaldoAsync(int cuentaId)
         {
-            var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaId);
+            int usuarioId = ObtenerUsuarioId();
+            var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaId && x.UsuarioId == usuarioId);
             if (cuenta == null)
             {
                 return Response<decimal>.Fail(CuentasMensajes.MSC_004);
@@ -33,7 +36,9 @@ namespace ATMSimulador.Features.Cuentas
 
         public async Task<Response<bool>> TransferirAsync(int cuentaOrigenId, int cuentaDestinoId, decimal monto)
         {
-            var cuentaOrigen = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaOrigenId);
+            int usuarioId = ObtenerUsuarioId();
+
+            var cuentaOrigen = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaOrigenId && x.UsuarioId == usuarioId);
             var cuentaDestino = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaDestinoId);
 
             if (cuentaOrigen == null || cuentaDestino == null)
@@ -98,8 +103,10 @@ namespace ATMSimulador.Features.Cuentas
             }
         }
 
-        public async Task<Response<List<CuentaDto>>> ListarCuentasAsync(int usuarioId)
+        public async Task<Response<List<CuentaDto>>> ListarCuentasAsync()
         {
+            int usuarioId = ObtenerUsuarioId();
+
             var cuentas = await _unitOfWork.Repository<Cuenta>()
                 .AsQueryable()
                 .Where(c => c.UsuarioId == usuarioId)
@@ -119,8 +126,19 @@ namespace ATMSimulador.Features.Cuentas
             return Response<List<CuentaDto>>.Success(cuentasDto);
         }
 
+        private int ObtenerUsuarioId()
+        {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            int.TryParse(userId, out var usuarioId);
+
+            return usuarioId;
+        }
+
         public async Task<Response<CuentaDto>> AperturarCuentaAsync(CuentaDto cuentaDto)
         {
+            int usuarioId = ObtenerUsuarioId();
+            cuentaDto.UsuarioId = usuarioId;
+
             var cuentaResponse = _cuentaDomain.CreateCuenta(cuentaDto);
 
             if (!cuentaResponse.Ok)

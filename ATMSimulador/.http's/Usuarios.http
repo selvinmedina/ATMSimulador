@@ -28,7 +28,7 @@ SOAPAction: "http://atm.com/service/Login"
   <soap:Body>
     <ser:Login>
       <ser:usuarioDto>
-        <ser:NombreUsuario>Ub/eVS2NqBM=</ser:NombreUsuario>
+        <ser:NombreUsuario>IYTEi5C0g/s=</ser:NombreUsuario>
         <ser:Pin>B81wXZLL3Mk=</ser:Pin>
       </ser:usuarioDto>
     </ser:Login>

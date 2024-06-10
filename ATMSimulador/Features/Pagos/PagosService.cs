@@ -22,6 +22,7 @@ namespace ATMSimulador.Features.Pagos
 
         public async Task<Response<PagoDto>> RealizarPagoAsync(PagoDto pagoDto)
         {
+            // TODO: Validar el usuario id de la cuenta que sea el que esta logueado
             var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == pagoDto.CuentaId);
             if (cuenta == null)
             {

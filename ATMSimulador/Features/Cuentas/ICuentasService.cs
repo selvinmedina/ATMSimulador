@@ -14,7 +14,7 @@ namespace ATMSimulador.Features.Cuentas
         Task<Response<bool>> TransferirAsync(int cuentaOrigenId, int cuentaDestinoId, decimal monto);
 
         [OperationContract(Name = "ListarCuentas")]
-        Task<Response<List<CuentaDto>>> ListarCuentasAsync(int usuarioId);
+        Task<Response<List<CuentaDto>>> ListarCuentasAsync();
 
         [OperationContract(Name = "AperturarCuenta")]
         Task<Response<CuentaDto>> AperturarCuentaAsync(CuentaDto cuentaDto);
