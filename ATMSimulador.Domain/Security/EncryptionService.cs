@@ -57,16 +57,23 @@ namespace ATMSimulador.Domain.Security
 
         public string Decrypt(string cipherText)
         {
-            using var tripleDes = TripleDES.Create();
-            tripleDes.Key = Encoding.UTF8.GetBytes(_key);
-            tripleDes.Mode = CipherMode.ECB;
-            tripleDes.Padding = PaddingMode.PKCS7;
+            try
+            {
+                using var tripleDes = TripleDES.Create();
+                tripleDes.Key = Encoding.UTF8.GetBytes(_key);
+                tripleDes.Mode = CipherMode.ECB;
+                tripleDes.Padding = PaddingMode.PKCS7;
 
-            var data = Convert.FromBase64String(cipherText);
+                var data = Convert.FromBase64String(cipherText);
 
-            using var decryptor = tripleDes.CreateDecryptor();
-            var results = decryptor.TransformFinalBlock(data, 0, data.Length);
-            return Encoding.UTF8.GetString(results);
+                using var decryptor = tripleDes.CreateDecryptor();
+                var results = decryptor.TransformFinalBlock(data, 0, data.Length);
+                return Encoding.UTF8.GetString(results);
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("El texto cifrado proporcionado no está encriptado correctamente o la clave de encriptación es incorrecta.");
+            }
         }
 
         public byte[] DecryptBytes(string cipherText)

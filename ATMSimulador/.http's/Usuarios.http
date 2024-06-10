@@ -10,8 +10,8 @@ SOAPAction: "http://atm.com/service/Registro"
   <soap:Body>
     <ser:Registro>
       <ser:usuarioDto>
-        <ser:NombreUsuario>sandra</ser:NombreUsuario>
-        <ser:Pin>1234</ser:Pin>
+        <ser:NombreUsuario>Ub/eVS2NqBM=</ser:NombreUsuario>
+        <ser:Pin>B81wXZLL3Mk=</ser:Pin>
       </ser:usuarioDto>
     </ser:Registro>
   </soap:Body>
@@ -28,8 +28,8 @@ SOAPAction: "http://atm.com/service/Login"
   <soap:Body>
     <ser:Login>
       <ser:usuarioDto>
-        <ser:NombreUsuario>selvin</ser:NombreUsuario>
-        <ser:Pin>1234</ser:Pin>
+        <ser:NombreUsuario>Ub/eVS2NqBM=</ser:NombreUsuario>
+        <ser:Pin>B81wXZLL3Mk=</ser:Pin>
       </ser:usuarioDto>
     </ser:Login>
   </soap:Body>
@@ -46,7 +46,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwia
   <soap:Header/>
   <soap:Body>
     <ser:GetUserData xmlns:ser="http://atm.com/service/">
-      <ser:token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiMmZhZjlmNDctNGNmOC00NGYzLWExYzEtMzE1ZGUyODYyMzhkIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg0MzYwLCJleHAiOjE3MTg1ODkxNjAsImlhdCI6MTcxNzk4NDM2MCwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.MW1xjVkLjANCKb6rb97tRiBAgEnwhYNInopt1V9TtEY</ser:token>
     </ser:GetUserData>
   </soap:Body>
 </soap:Envelope>

@@ -14,6 +14,6 @@ namespace ATMSimulador.Features.Usuarios
         Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto);
 
         [OperationContract(Name = "GetUserData")]
-        Response<UsuarioDataDto> GetUserDataAsync(string token);
+        Response<UsuarioDataDto> GetUserDataAsync();
     }
 }

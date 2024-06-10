@@ -115,7 +115,7 @@ namespace ATMSimulador.Features.Usuarios
             }
         }
 
-        public Response<UsuarioDataDto> GetUserDataAsync(string token)
+        public Response<UsuarioDataDto> GetUserDataAsync()
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
 

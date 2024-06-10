@@ -1,6 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ATMSimulador.Middlewares
 {
@@ -19,8 +20,8 @@ namespace ATMSimulador.Middlewares
 
             _excludedRoutes = new List<string>
             {
-                "/UsuariosService.svc/Registro",
-                "/UsuariosService.svc/Login"
+                "Registro",
+                "Login"
             };
         }
 
@@ -46,7 +47,7 @@ namespace ATMSimulador.Middlewares
                 throw new ArgumentNullException(nameof(context.Request.Path.Value));
             }
 
-            if (context.Request.Path.Value.Contains(".svc") && !IsExcludedRoute(context.Request.Path.Value))
+            if (context.Request.Path.Value.Contains(".svc") && !await IsExcludedRouteAsync(context))
             {
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
@@ -56,6 +57,7 @@ namespace ATMSimulador.Middlewares
                     await context.Response.WriteAsync("Unauthorized");
                     return;
                 }
+
 
                 if (!ValidateToken(token, out var userId))
                 {
@@ -70,9 +72,31 @@ namespace ATMSimulador.Middlewares
             await _next(context);
         }
 
-        private bool IsExcludedRoute(string path)
+        private async Task<bool> IsExcludedRouteAsync(HttpContext context)
         {
-            return _excludedRoutes.Any(route => path.Equals(route, StringComparison.OrdinalIgnoreCase));
+            // Check the method name in the SOAP body
+            context.Request.EnableBuffering();
+            var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
+            context.Request.Body.Position = 0;
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                var doc = XDocument.Parse(requestBody);
+                var bodyElement = doc.Descendants(XName.Get("Body", "http://schemas.xmlsoap.org/soap/envelope/")).FirstOrDefault();
+                if (bodyElement != null)
+                {
+                    foreach (var methodElement in bodyElement.Elements())
+                    {
+                        var methodName = methodElement.Name.LocalName;
+                        if (_excludedRoutes.Any(route => route.Equals(methodName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool ValidateToken(string token, out string? userId)
