@@ -117,27 +117,9 @@ namespace ATMSimulador.Features.Usuarios
 
         public Response<UsuarioDataDto> GetUserDataAsync(string token)
         {
-            var handler = new JwtSecurityTokenHandler();
-            JwtSecurityToken? jwtToken = handler.ReadToken(token) as JwtSecurityToken;
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
 
-            if (jwtToken == null)
-            {
-                return Response<UsuarioDataDto>.Fail("Invalid token.");
-            }
-
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "userId");
-
-            if (userIdClaim == null)
-            {
-                return Response<UsuarioDataDto>.Fail("User ID not found in the token.");
-            }
-
-            var userId = userIdClaim.Value;
-
-            // Registrar auditoría
-            RegistrarAuditoria(int.Parse(userId), "Obtención de Datos de Usuario", $"Datos del usuario {userId} obtenidos exitosamente.");
-
-            return Response<UsuarioDataDto>.Success(new UsuarioDataDto { UserId = userId });
+            return Response<UsuarioDataDto>.Success(new UsuarioDataDto { UserId = userId! });
         }
 
         private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)

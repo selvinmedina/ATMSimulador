@@ -8,6 +8,7 @@ using ATMSimulador.Features.Transacciones;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
 using ATMSimulador.Infrastructure.Database;
+using ATMSimulador.Middlewares;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -66,9 +67,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
 }
+app.UseMiddleware<SoapAuthenticationMiddleware>();
 
-app.UseHttpsRedirection();
-app.UseRouting(); // Place this before UseAuthorization
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
