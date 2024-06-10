@@ -7,6 +7,6 @@
         public const string TEF_A = "TEF A {0}";
         public const string TEF_DE = "TEF DE {0}";
         public const string PAGO_RECIBIDO = "PAGO RECIBIDO";
-        // Otros tipos de transacción...
+        public const string PAGO_SERVICIO = "{0} PAGOS";
     }
 }

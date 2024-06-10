@@ -5,14 +5,9 @@ using ATMSimulador.Domain.Security;
 
 namespace ATMSimulador.Domain.Dominios
 {
-    public class CuentaDomain
+    public class CuentaDomain(EncryptionService encryptionService)
     {
-        private readonly EncryptionService _encryptionService;
-
-        public CuentaDomain(EncryptionService encryptionService)
-        {
-            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
-        }
+        private readonly EncryptionService _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
 
         public Response<Cuenta> CreateCuenta(CuentaDto cuentaDto)
         {
@@ -30,12 +25,24 @@ namespace ATMSimulador.Domain.Dominios
             return Response<Cuenta>.Success(cuenta);
         }
 
-        public Response<bool> ValidateTransferencia(Cuenta cuentaOrigen, Cuenta cuentaDestino, decimal monto)
+        public Response<bool> ValidateTransferencia(Cuenta cuentaOrigen, decimal monto)
         {
             decimal saldoOrigen = decimal.Parse(_encryptionService.Decrypt(cuentaOrigen.Saldo));
 
             if (saldoOrigen < monto)
                 return Response<bool>.Fail(CuentasMensajes.MSC_003);
+
+            return Response<bool>.Success(true);
+        }
+
+        public Response<bool> ValidateSaldo(Cuenta cuenta, decimal monto)
+        {
+            decimal saldoActual = decimal.Parse(_encryptionService.Decrypt(cuenta.Saldo));
+
+            if (saldoActual < monto)
+            {
+                return Response<bool>.Fail(CuentasMensajes.MSC_003);
+            }
 
             return Response<bool>.Success(true);
         }

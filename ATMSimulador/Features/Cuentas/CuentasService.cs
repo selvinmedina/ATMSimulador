@@ -9,21 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ATMSimulador.Features.Cuentas
 {
-    public class CuentasService : ICuentasService
+    public class CuentasService(
+        ILogger<CuentasService> logger,
+        IUnitOfWork unitOfWork,
+        CuentaDomain cuentaDomain) : ICuentasService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<CuentasService> _logger;
-        private readonly CuentaDomain _cuentaDomain;
-
-        public CuentasService(
-            ILogger<CuentasService> logger,
-            IUnitOfWork unitOfWork,
-            CuentaDomain cuentaDomain)
-        {
-            _logger = logger;
-            _unitOfWork = unitOfWork;
-            _cuentaDomain = cuentaDomain;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<CuentasService> _logger = logger;
+        private readonly CuentaDomain _cuentaDomain = cuentaDomain;
 
         public async Task<Response<decimal>> ConsultarSaldoAsync(int cuentaId)
         {
@@ -48,7 +41,7 @@ namespace ATMSimulador.Features.Cuentas
                 return Response<bool>.Fail(CuentasMensajes.MSC_004);
             }
 
-            var validacion = _cuentaDomain.ValidateTransferencia(cuentaOrigen, cuentaDestino, monto);
+            var validacion = _cuentaDomain.ValidateTransferencia(cuentaOrigen, monto);
             if (!validacion.Ok)
             {
                 return Response<bool>.Fail(validacion.Message);

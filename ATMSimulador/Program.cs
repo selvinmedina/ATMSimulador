@@ -2,6 +2,7 @@ using ATMSimulador.Domain.Dominios;
 using ATMSimulador.Domain.Security;
 using ATMSimulador.Features.Auth;
 using ATMSimulador.Features.Cuentas;
+using ATMSimulador.Features.Pagos;
 using ATMSimulador.Features.Servicios;
 using ATMSimulador.Features.Usuarios;
 using ATMSimulador.Infrastructure;
@@ -81,6 +82,7 @@ app.UseEndpoints(endpoints =>
     endpoints.UseSoapEndpoint<IUsuariosService>("/UsuariosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.UseSoapEndpoint<IServiciosService>("/ServiciosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.UseSoapEndpoint<ICuentasService>("/CuentasService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
+    endpoints.UseSoapEndpoint<IPagosService>("/PagosService.svc", new SoapEncoderOptions(), SoapSerializer.XmlSerializer, false, null, settings);
     endpoints.MapControllers();
 });
 
@@ -95,18 +97,20 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddTransient<IUsuariosService, UsuariosService>();
     builder.Services.AddTransient<IServiciosService, ServiciosService>();
     builder.Services.AddTransient<ICuentasService, CuentasService>();
-
+    builder.Services.AddTransient<IPagosService, PagosService>();
 
     builder.Services.AddSingleton<EncryptionService>(x =>
     {
         var secretKey = builder.Configuration["Security:SecretKeyEncryptionService"];
 
-        if (secretKey is null) throw new Exception("La key Security:SecretKeyEncryptionService no existe en appsettings.");
-
-        return new(secretKey);
+        return secretKey is null
+            ? throw new Exception("La key Security:SecretKeyEncryptionService no existe en appsettings.")
+            : new(secretKey);
     });
     builder.Services.AddSingleton<UsuarioDomain>();
     builder.Services.AddSingleton<CuentaDomain>();
+    builder.Services.AddTransient<PagoDomain>();
+
     builder.Services.AddSingleton(jwtSettings);
     builder.Services.AddHttpContextAccessor();
 
