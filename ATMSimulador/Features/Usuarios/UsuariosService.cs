@@ -17,13 +17,14 @@ namespace ATMSimulador.Features.Usuarios
         private readonly UsuarioDomain _usuarioDomain;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         public UsuariosService(
             ILogger<UsuariosService> logger,
             IUnitOfWork unitOfWork,
             UsuarioDomain usuarioDomain,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor
-            )
+        )
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -46,6 +47,9 @@ namespace ATMSimulador.Features.Usuarios
                 await _unitOfWork.SaveAsync();
 
                 usuarioDto.UsuarioId = validationResult.Data!.UsuarioId;
+
+                // Registrar auditoría
+                RegistrarAuditoria(usuarioDto.UsuarioId, "Registro de Usuario", $"Usuario {usuarioDto.NombreUsuario} registrado exitosamente.");
 
                 return Response<UsuarioDto>.Success(usuarioDto);
             }
@@ -99,6 +103,9 @@ namespace ATMSimulador.Features.Usuarios
                     refresh_token = tokenDto.RefreshToken
                 };
 
+                // Registrar auditoría
+                RegistrarAuditoria(user.UsuarioId, "Inicio de Sesión", $"Usuario {user.NombreUsuario} inició sesión exitosamente.");
+
                 return Response<LoginRespuestaDto>.Success(respuesta);
             }
             catch (Exception ex)
@@ -127,7 +134,24 @@ namespace ATMSimulador.Features.Usuarios
 
             var userId = userIdClaim.Value;
 
+            // Registrar auditoría
+            RegistrarAuditoria(int.Parse(userId), "Obtención de Datos de Usuario", $"Datos del usuario {userId} obtenidos exitosamente.");
+
             return Response<UsuarioDataDto>.Success(new UsuarioDataDto { UserId = userId });
+        }
+
+        private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)
+        {
+            var auditoria = new Auditoria
+            {
+                UsuarioId = usuarioId,
+                TipoActividad = tipoActividad,
+                FechaActividad = DateTime.UtcNow,
+                Descripcion = descripcion
+            };
+
+            _unitOfWork.Repository<Auditoria>().Add(auditoria);
+            _unitOfWork.SaveAsync().Wait();
         }
 
         public void Dispose()

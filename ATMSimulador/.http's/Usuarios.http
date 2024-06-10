@@ -1,22 +1,22 @@
 @ATMSimulador_HostAddress = http://localhost:5059
 
-  # Solicitud de Registro
-  POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
-  Content-Type: text/xml
-  SOAPAction: "http://atm.com/service/Registro"
+# Solicitud de Registro
+POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
+Content-Type: text/xml
+SOAPAction: "http://atm.com/service/Registro"
 
-  <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
-    <soap:Header/>
-    <soap:Body>
-      <ser:Registro>
-        <ser:usuarioDto>
-          <ser:NombreUsuario>javier</ser:NombreUsuario>
-          <ser:Pin>5678</ser:Pin>
-        </ser:usuarioDto>
-      </ser:Registro>
-    </soap:Body>
-  </soap:Envelope>
-  ###
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
+  <soap:Header/>
+  <soap:Body>
+    <ser:Registro>
+      <ser:usuarioDto>
+        <ser:NombreUsuario>sandra</ser:NombreUsuario>
+        <ser:Pin>1234</ser:Pin>
+      </ser:usuarioDto>
+    </ser:Registro>
+  </soap:Body>
+</soap:Envelope>
+###
 
 # Solicitud de Login
 POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
@@ -34,20 +34,19 @@ SOAPAction: "http://atm.com/service/Login"
     </ser:Login>
   </soap:Body>
 </soap:Envelope>
-
 ###
 
 # Solicitud para Obtener Datos del Usuario
 POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/GetUserData"
-Authorization: Bearer eyfeg35
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiMmZhZjlmNDctNGNmOC00NGYzLWExYzEtMzE1ZGUyODYyMzhkIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg0MzYwLCJleHAiOjE3MTg1ODkxNjAsImlhdCI6MTcxNzk4NDM2MCwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.MW1xjVkLjANCKb6rb97tRiBAgEnwhYNInopt1V9TtEY
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Header/>
   <soap:Body>
     <ser:GetUserData xmlns:ser="http://atm.com/service/">
-      <ser:token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiMDhlMjQ2NmYtOGVmYS00ZTZhLWI3MmMtOTAwOWNiNTRhNjY0Iiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTcxMTk5LCJleHAiOjE3MTg1NzU5OTksImlhdCI6MTcxNzk3MTE5OSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.-_1KVMzfJcK2SBj5T2jbvFEuFvOTDgr7P8nUmGEEp20</ser:token>
+      <ser:token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiMmZhZjlmNDctNGNmOC00NGYzLWExYzEtMzE1ZGUyODYyMzhkIiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE3OTg0MzYwLCJleHAiOjE3MTg1ODkxNjAsImlhdCI6MTcxNzk4NDM2MCwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.MW1xjVkLjANCKb6rb97tRiBAgEnwhYNInopt1V9TtEY</ser:token>
     </ser:GetUserData>
   </soap:Body>
 </soap:Envelope>
