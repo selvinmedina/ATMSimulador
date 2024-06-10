@@ -26,6 +26,26 @@ namespace ATMSimulador.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (context.Request == null)
+            {
+                throw new ArgumentNullException(nameof(context.Request));
+            }
+
+            if (context.Request.Path == null)
+            {
+                throw new ArgumentNullException(nameof(context.Request.Path));
+            }
+
+            if (context.Request.Path.Value == null)
+            {
+                throw new ArgumentNullException(nameof(context.Request.Path.Value));
+            }
+
             if (context.Request.Path.Value.Contains(".svc") && !IsExcludedRoute(context.Request.Path.Value))
             {
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
