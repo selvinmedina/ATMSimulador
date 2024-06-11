@@ -194,8 +194,19 @@ namespace ATMSimulador.Features.Cuentas
             _unitOfWork.SaveAsync(); // Guarda la auditoría en la base de datos
         }
 
+        private bool _disposed = false; // Para detectar llamadas redundantes
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+            }
+        }
+
         public void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

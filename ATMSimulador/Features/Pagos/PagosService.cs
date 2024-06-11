@@ -13,17 +13,29 @@ namespace ATMSimulador.Features.Pagos
         ILogger<PagosService> logger,
         IUnitOfWork unitOfWork,
         PagoDomain pagoDomain,
-        CuentaDomain cuentaDomain) : IPagosService
+        CuentaDomain cuentaDomain,
+        IHttpContextAccessor httpContextAccessor) : IPagosService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<PagosService> _logger = logger;
         private readonly PagoDomain _pagoDomain = pagoDomain;
         private readonly CuentaDomain _cuentaDomain = cuentaDomain;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
+        private int ObtenerUsuarioId()
+        {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            int.TryParse(userId, out var usuarioId);
+
+            return usuarioId;
+        }
 
         public async Task<Response<PagoDto>> RealizarPagoAsync(PagoDto pagoDto)
         {
-            // TODO: Validar el usuario id de la cuenta que sea el que esta logueado
-            var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == pagoDto.CuentaId);
+            var usuarioId = ObtenerUsuarioId();
+            var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable()
+                        .FirstOrDefaultAsync(x => x.CuentaId == pagoDto.CuentaId && x.UsuarioId == usuarioId);
+
             if (cuenta == null)
             {
                 return Response<PagoDto>.Fail(CuentasMensajes.MSC_004);
@@ -100,8 +112,19 @@ namespace ATMSimulador.Features.Pagos
             _unitOfWork.SaveAsync();
         }
 
+        private bool _disposed = false; // Para detectar llamadas redundantes
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+            }
+        }
+
         public void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

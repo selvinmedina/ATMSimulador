@@ -79,6 +79,7 @@ if (settings is { })
     settings.AppPath = app.Environment.ContentRootPath;
 
 app.UseMiddleware<TokenExtractionMiddleware>();
+app.UseMiddleware<HmacValidationMiddleware>();
 app.UseMiddleware<SoapDecryptionMiddleware>();
 app.UseMiddleware<SoapBodyReplacementMiddleware>();
 

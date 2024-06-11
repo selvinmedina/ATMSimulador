@@ -136,8 +136,19 @@ namespace ATMSimulador.Features.Usuarios
             _unitOfWork.SaveAsync();
         }
 
+        private bool _disposed = false; // Para detectar llamadas redundantes
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+            }
+        }
+
         public void Dispose()
         {
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }

@@ -7,6 +7,7 @@ Content-Type: text/xml
 SOAPAction: "http://atm.com/service/AperturarCuenta"
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3IiwianRpIjoiNDA4NTUyMzEtNDRkZS00YTBlLWFmNzAtZGJhZDk0NGQ3OGRlIiwic3ViIjoieW9uaSIsIm5iZiI6MTcxODAwMjEzNiwiZXhwIjoxNzE4NjA2OTM2LCJpYXQiOjE3MTgwMDIxMzYsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.nuRNDTyInlZIszJTpJaeZ5ITAh-_Y9k4O-g89EI21jU
 
+
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
   <soap:Body>

@@ -102,9 +102,9 @@ namespace ATMSimulador.Domain.Security
             return Encoding.UTF8.GetString(results);
         }
 
-        public bool VerifyHmacMd5(string key, string message, string receivedHmac)
+        public bool VerifyHmacMd5(string message, string receivedHmac)
         {
-            using HMACMD5 hmac = new(Encoding.UTF8.GetBytes(key));
+            using HMACMD5 hmac = new(Encoding.UTF8.GetBytes(_key));
             byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
             string computedHmac = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
