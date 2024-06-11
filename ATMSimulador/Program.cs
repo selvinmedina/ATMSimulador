@@ -118,6 +118,7 @@ void ServiciosApp(WebApplicationBuilder builder)
     builder.Services.AddSingleton<UsuarioDomain>();
     builder.Services.AddSingleton<CuentaDomain>();
     builder.Services.AddTransient<PagoDomain>();
+    builder.Services.AddTransient<EncryptionHelper>();
 
     builder.Services.AddSingleton(jwtSettings);
     builder.Services.AddHttpContextAccessor();

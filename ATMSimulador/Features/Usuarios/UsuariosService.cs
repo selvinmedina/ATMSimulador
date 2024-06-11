@@ -3,6 +3,7 @@ using ATMSimulador.Domain.Dominios;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
 using ATMSimulador.Domain.Mensajes;
+using ATMSimulador.Domain.Security;
 using ATMSimulador.Features.Auth;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,15 @@ namespace ATMSimulador.Features.Usuarios
         private readonly UsuarioDomain _usuarioDomain;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionHelper _encryptionHelper;
 
         public UsuariosService(
             ILogger<UsuariosService> logger,
             IUnitOfWork unitOfWork,
             UsuarioDomain usuarioDomain,
             IAuthService authService,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            EncryptionHelper encryptionHelper
         )
         {
             _logger = logger;
@@ -31,14 +34,15 @@ namespace ATMSimulador.Features.Usuarios
             _usuarioDomain = usuarioDomain;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
+            _encryptionHelper = encryptionHelper;
         }
 
-        public async Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto)
+        public async Task<Response<UsuarioDtoString>> RegistroAsync(UsuarioDto usuarioDto)
         {
             var validationResult = _usuarioDomain.CreateUser(usuarioDto);
             if (!validationResult.Ok)
             {
-                return Response<UsuarioDto>.Fail(validationResult.Message);
+                return Response<UsuarioDtoString>.Fail(validationResult.Message);
             }
 
             try
@@ -51,21 +55,24 @@ namespace ATMSimulador.Features.Usuarios
                 // Registrar auditoría
                 RegistrarAuditoria(usuarioDto.UsuarioId, "Registro de Usuario", $"Usuario {usuarioDto.NombreUsuario} registrado exitosamente.");
 
-                return Response<UsuarioDto>.Success(usuarioDto);
+                var respuesta = Response<UsuarioDto>.Success(usuarioDto);
+                var encryptedResponse = _encryptionHelper.EncriptarResponse<UsuarioDto, UsuarioDtoString>(respuesta);
+
+                return encryptedResponse;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, UsuariosMensajes.MSU_001);
-                return Response<UsuarioDto>.Fail(ex.Message);
+                return Response<UsuarioDtoString>.Fail(ex.Message);
             }
         }
 
-        public async Task<Response<LoginRespuestaDto>> LoginAsync(UsuarioDto usuarioDto)
+        public async Task<Response<LoginRespuestaDtoString>> LoginAsync(UsuarioDto usuarioDto)
         {
             var isLoginDtoValid = _usuarioDomain.CheckLoginDto(usuarioDto);
             if (!isLoginDtoValid.Ok)
             {
-                return Response<LoginRespuestaDto>.Fail(isLoginDtoValid.Message);
+                return Response<LoginRespuestaDtoString>.Fail(isLoginDtoValid.Message);
             }
 
             try
@@ -75,12 +82,12 @@ namespace ATMSimulador.Features.Usuarios
 
                 if (user == null)
                 {
-                    return Response<LoginRespuestaDto>.Fail(UsuariosMensajes.MSU_004);
+                    return Response<LoginRespuestaDtoString>.Fail(UsuariosMensajes.MSU_004);
                 }
 
                 if (!_usuarioDomain.VerifyPin(usuarioDto.Pin, user.Pin))
                 {
-                    return Response<LoginRespuestaDto>.Fail(UsuariosMensajes.MSU_004);
+                    return Response<LoginRespuestaDtoString>.Fail(UsuariosMensajes.MSU_004);
                 }
 
                 var token = _authService.GenerateToken(user.UsuarioId, user.NombreUsuario);
@@ -93,33 +100,44 @@ namespace ATMSimulador.Features.Usuarios
                     ExpiresIn = (int)(expires - DateTime.UtcNow).TotalSeconds,
                     Exp = new DateTimeOffset(expires).ToUnixTimeSeconds()
                 };
+                
+                // Registrar auditoría
+                RegistrarAuditoria(user.UsuarioId, "Inicio de Sesión", $"Usuario {user.NombreUsuario} inició sesión exitosamente.");
 
-                var respuesta = new LoginRespuestaDto()
+                var respuesta = Response<LoginRespuestaDto>.Success(new LoginRespuestaDto()
                 {
                     access_token = tokenDto.AccessToken,
                     token_type = tokenDto.TokenType,
                     expires_in = tokenDto.ExpiresIn,
                     exp = tokenDto.Exp,
                     refresh_token = tokenDto.RefreshToken
-                };
+                });
+                
+                var encryptedResponse = _encryptionHelper.EncriptarResponse<LoginRespuestaDto, LoginRespuestaDtoString>(respuesta);
 
-                // Registrar auditoría
-                RegistrarAuditoria(user.UsuarioId, "Inicio de Sesión", $"Usuario {user.NombreUsuario} inició sesión exitosamente.");
-
-                return Response<LoginRespuestaDto>.Success(respuesta);
+                return encryptedResponse;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, UsuariosMensajes.MSU_005);
-                return Response<LoginRespuestaDto>.Fail(ex.Message);
+                return Response<LoginRespuestaDtoString>.Fail(ex.Message);
             }
         }
 
-        public Response<UsuarioDataDto> GetUserDataAsync()
+        public Response<UsuarioDataDtoString> GetUserDataAsync()
         {
-            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            var userId = _httpContextAccessor.HttpContext?.Items["userId"]?.ToString();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Response<UsuarioDataDtoString>.Fail("User ID not found");
+            }
 
-            return Response<UsuarioDataDto>.Success(new UsuarioDataDto { UserId = userId! });
+            var userData = new UsuarioDataDto { UserId = int.Parse(userId) };
+            var respuesta = Response<UsuarioDataDto>.Success(userData);
+
+            var encryptedResponse = _encryptionHelper.EncriptarResponse<UsuarioDataDto, UsuarioDataDtoString>(respuesta);
+
+            return encryptedResponse;
         }
 
         private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)

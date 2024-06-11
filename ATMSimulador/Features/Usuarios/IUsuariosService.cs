@@ -8,12 +8,12 @@ namespace ATMSimulador.Features.Usuarios
     public interface IUsuariosService : IDisposable
     {
         [OperationContract(Name = "Login")]
-        Task<Response<LoginRespuestaDto>> LoginAsync(UsuarioDto usuarioDto);
+        Task<Response<LoginRespuestaDtoString>> LoginAsync(UsuarioDto usuarioDto);
 
         [OperationContract(Name = "Registro")]
-        Task<Response<UsuarioDto>> RegistroAsync(UsuarioDto usuarioDto);
+        Task<Response<UsuarioDtoString>> RegistroAsync(UsuarioDto usuarioDto);
 
         [OperationContract(Name = "GetUserData")]
-        Response<UsuarioDataDto> GetUserDataAsync();
+        Response<UsuarioDataDtoString> GetUserDataAsync();
     }
 }
