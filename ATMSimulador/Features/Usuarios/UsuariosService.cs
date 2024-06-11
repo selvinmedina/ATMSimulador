@@ -100,7 +100,7 @@ namespace ATMSimulador.Features.Usuarios
                     ExpiresIn = (int)(expires - DateTime.UtcNow).TotalSeconds,
                     Exp = new DateTimeOffset(expires).ToUnixTimeSeconds()
                 };
-                
+
                 // Registrar auditoría
                 RegistrarAuditoria(user.UsuarioId, "Inicio de Sesión", $"Usuario {user.NombreUsuario} inició sesión exitosamente.");
 
@@ -112,7 +112,7 @@ namespace ATMSimulador.Features.Usuarios
                     exp = tokenDto.Exp,
                     refresh_token = tokenDto.RefreshToken
                 });
-                
+
                 var encryptedResponse = _encryptionHelper.EncriptarResponse<LoginRespuestaDto, LoginRespuestaDtoString>(respuesta);
 
                 return encryptedResponse;
