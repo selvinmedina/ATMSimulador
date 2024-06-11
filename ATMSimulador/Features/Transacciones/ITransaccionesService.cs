@@ -8,6 +8,6 @@ namespace ATMSimulador.Features.Transacciones
     public interface ITransaccionesService : IDisposable
     {
         [OperationContract(Name = "ListarTransacciones")]
-        Task<Response<List<TransaccionDto>>> ListarTransaccionesAsync(int cuentaId);
+        Task<Response<List<TransaccionDtoString>>> ListarTransaccionesAsync();
     }
 }

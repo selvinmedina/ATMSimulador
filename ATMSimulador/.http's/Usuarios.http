@@ -22,9 +22,9 @@ SOAPAction: "http://atm.com/service/Registro"
 POST {{ATMSimulador_HostAddress}}/UsuariosService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/Login"
-X-HMAC-Signature: 05ca049b71c342b4aa4d56b92b58bd99
+X-HMAC-Signature: 272eed8f85c2acbf0746735aad61b553
 
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/"> <soap:Header/> <soap:Body> <ser:Login> <ser:usuarioDto> <ser:NombreUsuario>IYTEi5C0g/s=</ser:NombreUsuario> <ser:Pin>B81wXZLL3Mk=</ser:Pin> </ser:usuarioDto> </ser:Login> </soap:Body> </soap:Envelope>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/"> <soap:Header/> <soap:Body> <ser:Login> <ser:usuarioDto> <ser:NombreUsuario>pMIaIZeNA4w=</ser:NombreUsuario> <ser:Pin>B81wXZLL3Mk=</ser:Pin> </ser:usuarioDto> </ser:Login> </soap:Body> </soap:Envelope>
 ###
 
 # Solicitud para Obtener Datos del Usuario

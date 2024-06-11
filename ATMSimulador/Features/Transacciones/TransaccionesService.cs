@@ -1,29 +1,39 @@
 ﻿using ATMSimulador.Domain;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
+using ATMSimulador.Domain.Security;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace ATMSimulador.Features.Transacciones
 {
-    public class TransaccionesService(
-        ILogger<TransaccionesService> logger,
-        IUnitOfWork unitOfWork,
-        IHttpContextAccessor httpContextAccessor) : ITransaccionesService
+    public class TransaccionesService : ITransaccionesService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly ILogger<TransaccionesService> _logger = logger;
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<TransaccionesService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionHelper _encryptionHelper;
+
+        public TransaccionesService(
+            ILogger<TransaccionesService> logger,
+            IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor,
+            EncryptionHelper encryptionHelper)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+            _encryptionHelper = encryptionHelper;
+        }
 
         private int ObtenerUsuarioId()
         {
-            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            var userId = _httpContextAccessor.HttpContext!.Items["userId"]?.ToString();
             int.TryParse(userId, out var usuarioId);
-
             return usuarioId;
         }
 
-        public async Task<Response<List<TransaccionDto>>> ListarTransaccionesAsync(int cuentaId)
+        public async Task<Response<List<TransaccionDtoString>>> ListarTransaccionesAsync()
         {
             try
             {
@@ -31,7 +41,7 @@ namespace ATMSimulador.Features.Transacciones
                 var transacciones = await _unitOfWork.Repository<Transaccion>()
                     .AsQueryable()
                     .Include(t => t.Cuenta)
-                    .Where(t => t.CuentaId == cuentaId && t.Cuenta.UsuarioId == usuarioId)
+                    .Where(t => t.Cuenta.UsuarioId == usuarioId)
                     .ToListAsync();
 
                 var transaccionesDto = transacciones.Select(t => new TransaccionDto
@@ -44,15 +54,26 @@ namespace ATMSimulador.Features.Transacciones
                     Estado = t.Estado
                 }).ToList();
 
-                // Registrar auditoría
-                RegistrarAuditoria("Listado de Transacciones", $"Listado de transacciones para la cuenta {cuentaId}");
+                if (!transaccionesDto.Any())
+                {
+                    return Response<List<TransaccionDtoString>>.Fail("No se encontraron transacciones");
+                }
 
-                return Response<List<TransaccionDto>>.Success(transaccionesDto);
+                var transaccionesDtoString = transaccionesDto
+                    .Select(t => _encryptionHelper.EncriptarPropiedades<TransaccionDto, TransaccionDtoString>(t))
+                    .ToList();
+
+                var encryptedResponse = Response<List<TransaccionDtoString>>.Success(transaccionesDtoString);
+
+                // Registrar auditoría
+                RegistrarAuditoria("Listado de Transacciones", $"Listado de transacciones para el usuario {usuarioId}");
+
+                return encryptedResponse;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error listando transacciones");
-                return Response<List<TransaccionDto>>.Fail("Error listando transacciones");
+                return Response<List<TransaccionDtoString>>.Fail("Error listando transacciones");
             }
         }
 

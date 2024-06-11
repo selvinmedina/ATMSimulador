@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 
 namespace ATMSimulador.Domain.Security
 {
@@ -31,32 +32,28 @@ namespace ATMSimulador.Domain.Security
                         encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
                 }
-                else
+                else if (originalProperty.PropertyType.IsClass && !originalProperty.PropertyType.IsPrimitive)
                 {
-                    encryptedProperty = encryptedProperties.FirstOrDefault(p => p.Name == originalProperty.Name && p.PropertyType.IsClass);
-                    if (encryptedProperty != null)
+                    var value = originalProperty.GetValue(originalObj);
+                    if (value != null)
                     {
-                        var value = originalProperty.GetValue(originalObj);
-                        if (value != null)
-                        {
-                            var encryptedValue = EncriptarPropiedades(value, Activator.CreateInstance(encryptedProperty.PropertyType));
-                            encryptedProperty.SetValue(encryptedObj, encryptedValue);
-                        }
+                        var encryptedValue = EncriptarPropiedades(value, Activator.CreateInstance(encryptedProperty.PropertyType));
+                        encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
-                    else if (typeof(System.Collections.IEnumerable).IsAssignableFrom(originalProperty.PropertyType) && originalProperty.PropertyType != typeof(string))
+                }
+                else if (typeof(IEnumerable).IsAssignableFrom(originalProperty.PropertyType) && originalProperty.PropertyType != typeof(string))
+                {
+                    var listType = typeof(List<>).MakeGenericType(encryptedProperty.PropertyType.GenericTypeArguments[0]);
+                    var encryptedList = (IList)Activator.CreateInstance(listType);
+
+                    var originalList = (IEnumerable)originalProperty.GetValue(originalObj);
+                    foreach (var item in originalList)
                     {
-                        var listType = typeof(List<>).MakeGenericType(encryptedProperty.PropertyType.GenericTypeArguments[0]);
-                        var encryptedList = (System.Collections.IList)Activator.CreateInstance(listType);
-
-                        var originalList = (System.Collections.IEnumerable)originalProperty.GetValue(originalObj);
-                        foreach (var item in originalList)
-                        {
-                            var encryptedItem = EncriptarPropiedades(item, Activator.CreateInstance(encryptedProperty.PropertyType.GenericTypeArguments[0]));
-                            encryptedList.Add(encryptedItem);
-                        }
-
-                        encryptedProperty.SetValue(encryptedObj, encryptedList);
+                        var encryptedItem = EncriptarPropiedades(item, Activator.CreateInstance(encryptedProperty.PropertyType.GenericTypeArguments[0]));
+                        encryptedList.Add(encryptedItem);
                     }
+
+                    encryptedProperty.SetValue(encryptedObj, encryptedList);
                 }
             }
 
@@ -98,32 +95,28 @@ namespace ATMSimulador.Domain.Security
                         encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
                 }
-                else
+                else if (originalProperty.PropertyType.IsClass && !originalProperty.PropertyType.IsPrimitive)
                 {
-                    encryptedProperty = encryptedProperties.FirstOrDefault(p => p.Name == originalProperty.Name && p.PropertyType.IsClass);
-                    if (encryptedProperty != null)
+                    var value = originalProperty.GetValue(originalObj);
+                    if (value != null)
                     {
-                        var value = originalProperty.GetValue(originalObj);
-                        if (value != null)
-                        {
-                            var encryptedValue = EncriptarPropiedades(value, Activator.CreateInstance(encryptedProperty.PropertyType));
-                            encryptedProperty.SetValue(encryptedObj, encryptedValue);
-                        }
+                        var encryptedValue = EncriptarPropiedades(value, Activator.CreateInstance(encryptedProperty.PropertyType));
+                        encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
-                    else if (typeof(System.Collections.IEnumerable).IsAssignableFrom(originalProperty.PropertyType) && originalProperty.PropertyType != typeof(string))
+                }
+                else if (typeof(IEnumerable).IsAssignableFrom(originalProperty.PropertyType) && originalProperty.PropertyType != typeof(string))
+                {
+                    var listType = typeof(List<>).MakeGenericType(encryptedProperty.PropertyType.GenericTypeArguments[0]);
+                    var encryptedList = (IList)Activator.CreateInstance(listType);
+
+                    var originalList = (IEnumerable)originalProperty.GetValue(originalObj);
+                    foreach (var item in originalList)
                     {
-                        var listType = typeof(List<>).MakeGenericType(encryptedProperty.PropertyType.GenericTypeArguments[0]);
-                        var encryptedList = (System.Collections.IList)Activator.CreateInstance(listType);
-
-                        var originalList = (System.Collections.IEnumerable)originalProperty.GetValue(originalObj);
-                        foreach (var item in originalList)
-                        {
-                            var encryptedItem = EncriptarPropiedades(item, Activator.CreateInstance(encryptedProperty.PropertyType.GenericTypeArguments[0]));
-                            encryptedList.Add(encryptedItem);
-                        }
-
-                        encryptedProperty.SetValue(encryptedObj, encryptedList);
+                        var encryptedItem = EncriptarPropiedades(item, Activator.CreateInstance(encryptedProperty.PropertyType.GenericTypeArguments[0]));
+                        encryptedList.Add(encryptedItem);
                     }
+
+                    encryptedProperty.SetValue(encryptedObj, encryptedList);
                 }
             }
 

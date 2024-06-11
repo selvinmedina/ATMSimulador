@@ -3,14 +3,9 @@
 POST {{ATMSimulador_HostAddress}}/TransaccionesService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/ListarTransacciones"
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzIiwianRpIjoiM2JhMGM0MWUtYjYwOC00ZTZjLTlkZTQtYzk3Y2RjMjJmMGI2Iiwic3ViIjoic2VsdmluIiwibmJmIjoxNzE4MDg0MTM5LCJleHAiOjE3MTg2ODg5MzksImlhdCI6MTcxODA4NDEzOSwiaXNzIjoiaHR0cHM6Ly9pZC5zZWx2aW5tZWRpbmEuY29tIiwiYXVkIjoiaHR0cHM6Ly9zZWx2aW5tZWRpbmEuY29tIn0.clcU9_KowSr_m3sgm5QZvhI_T2HZVzaFwZMt0sE5Z_Q
+X-HMAC-Signature: 39464e841314298d8111e16191685105
 
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
-  <soap:Header/>
-  <soap:Body>
-    <ser:ListarTransacciones>
-      <ser:cuentaId>3</ser:cuentaId>
-    </ser:ListarTransacciones>
-  </soap:Body>
-</soap:Envelope>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/"> <soap:Header/> <soap:Body> <ser:ListarTransacciones> </ser:ListarTransacciones> </soap:Body> </soap:Envelope>
 
 ###

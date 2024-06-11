@@ -4,6 +4,7 @@
 POST {{ATMSimulador_HostAddress}}/CuentasService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/Transferir"
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOCIsImp0aSI6Ijg5ZGRiNGMyLWI3YTEtNDZmNC1hYmFjLWM4ZDM1YjIyMWM0NCIsInN1YiI6ImxvdXJkZXMiLCJuYmYiOjE3MTgwNzY3NjEsImV4cCI6MTcxODY4MTU2MSwiaWF0IjoxNzE4MDc2NzYxLCJpc3MiOiJodHRwczovL2lkLnNlbHZpbm1lZGluYS5jb20iLCJhdWQiOiJodHRwczovL3NlbHZpbm1lZGluYS5jb20ifQ.HYAKp5MsgBV65BlU8CrgrCKmeCWVfBLSd6L9IXmUQOI
 
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
   <soap:Header/>
