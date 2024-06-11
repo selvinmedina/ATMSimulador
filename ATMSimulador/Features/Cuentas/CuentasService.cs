@@ -196,6 +196,69 @@ namespace ATMSimulador.Features.Cuentas
             }
         }
 
+        public async Task<Response<RetiroDtoString>> RetirarAsync(int cuentaId, decimal monto)
+        {
+            int usuarioId = ObtenerUsuarioId();
+
+            var cuenta = await _unitOfWork.Repository<Cuenta>()
+                .AsQueryable()
+                .FirstOrDefaultAsync(x => x.CuentaId == cuentaId && x.UsuarioId == usuarioId);
+
+            if (cuenta == null)
+            {
+                return Response<RetiroDtoString>.Fail(CuentasMensajes.MSC_004);
+            }
+
+            var saldoActual = _cuentaDomain.DecryptSaldo(cuenta.Saldo);
+
+            if (saldoActual < monto)
+            {
+                return Response<RetiroDtoString>.Fail(CuentasMensajes.MSC_006);
+            }
+
+            var nuevoSaldo = saldoActual - monto;
+            cuenta.Saldo = _cuentaDomain.EncryptSaldo(nuevoSaldo);
+
+            var transaccion = new Transaccion
+            {
+                CuentaId = cuentaId,
+                TipoTransaccion = TransaccionTipos.RETIRO,
+                Monto = monto,
+                FechaTransaccion = DateTime.UtcNow,
+                Estado = "COMPLETADO"
+            };
+
+            _unitOfWork.BeginTransaction();
+
+            try
+            {
+                _unitOfWork.Repository<Cuenta>().Update(cuenta);
+                _unitOfWork.Repository<Transaccion>().Add(transaccion);
+                await _unitOfWork.SaveAsync();
+                _unitOfWork.Commit();
+
+                RegistrarAuditoria(cuenta.UsuarioId, "Retiro", $"Retiro de {monto} desde la cuenta {cuenta.NumeroCuenta}");
+
+                var retiroDto = new RetiroDto
+                {
+                    MontoRetirado = monto,
+                    SaldoActual = nuevoSaldo,
+                    NumeroCuenta = cuenta.NumeroCuenta,
+                    FechaTransaccion = transaccion.FechaTransaccion
+                };
+
+                var encryptedRetiroDto = _encryptionHelper.EncriptarPropiedades<RetiroDto, RetiroDtoString>(retiroDto);
+
+                return Response<RetiroDtoString>.Success(encryptedRetiroDto);
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.RollBack();
+                _logger.LogError(ex, CuentasMensajes.MSC_005);
+                return Response<RetiroDtoString>.Fail(CuentasMensajes.MSC_005);
+            }
+        }
+
         private int ObtenerUsuarioId()
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();

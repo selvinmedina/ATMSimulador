@@ -7,5 +7,6 @@
         public const string MSC_003 = "Saldo insuficiente.";
         public const string MSC_004 = "Cuenta no encontrada.";
         public const string MSC_005 = "Error en la transferencia.";
+        public const string MSC_006 = "Saldo insuficiente para el retiro.";
     }
 }

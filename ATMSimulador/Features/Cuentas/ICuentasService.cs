@@ -18,5 +18,8 @@ namespace ATMSimulador.Features.Cuentas
 
         [OperationContract(Name = "AperturarCuenta")]
         Task<Response<CuentaDtoString>> AperturarCuentaAsync(CuentaDto cuentaDto);
+
+        [OperationContract(Name = "Retirar")]
+        Task<Response<RetiroDtoString>> RetirarAsync(int cuentaId, decimal monto);
     }
 }
