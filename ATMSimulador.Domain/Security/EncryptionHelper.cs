@@ -5,11 +5,11 @@ namespace ATMSimulador.Domain.Security
 {
     public class EncryptionHelper
     {
-        private readonly EncryptionService _encryptionService;
+        public readonly EncryptionService EncryptionService;
 
         public EncryptionHelper(EncryptionService encryptionService)
         {
-            _encryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
+            EncryptionService = encryptionService ?? throw new ArgumentNullException(nameof(encryptionService));
         }
 
         public T2 EncriptarPropiedades<T1, T2>(T1 originalObj) where T2 : new()
@@ -28,7 +28,7 @@ namespace ATMSimulador.Domain.Security
                     var value = originalProperty.GetValue(originalObj);
                     if (value != null)
                     {
-                        string encryptedValue = _encryptionService.Encrypt(value.ToString());
+                        string encryptedValue = EncryptionService.Encrypt(value.ToString());
                         encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
                 }
@@ -91,7 +91,7 @@ namespace ATMSimulador.Domain.Security
                     var value = originalProperty.GetValue(originalObj);
                     if (value != null)
                     {
-                        string encryptedValue = _encryptionService.Encrypt(value.ToString());
+                        string encryptedValue = EncryptionService.Encrypt(value.ToString());
                         encryptedProperty.SetValue(encryptedObj, encryptedValue);
                     }
                 }

@@ -8,15 +8,15 @@ namespace ATMSimulador.Features.Cuentas
     public interface ICuentasService : IDisposable
     {
         [OperationContract(Name = "ConsultarSaldo")]
-        Task<Response<decimal>> ConsultarSaldoAsync(int cuentaId);
+        Task<Response<string>> ConsultarSaldoAsync(int cuentaId);
 
         [OperationContract(Name = "Transferir")]
         Task<Response<bool>> TransferirAsync(int cuentaOrigenId, int cuentaDestinoId, decimal monto);
 
         [OperationContract(Name = "ListarCuentas")]
-        Task<Response<List<CuentaDto>>> ListarCuentasAsync();
+        Task<Response<List<CuentaDtoString>>> ListarCuentasAsync();
 
         [OperationContract(Name = "AperturarCuenta")]
-        Task<Response<CuentaDto>> AperturarCuentaAsync(CuentaDto cuentaDto);
+        Task<Response<CuentaDtoString>> AperturarCuentaAsync(CuentaDto cuentaDto);
     }
 }

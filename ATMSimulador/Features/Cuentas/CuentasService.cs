@@ -3,35 +3,53 @@ using ATMSimulador.Domain.Dominios;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
 using ATMSimulador.Domain.Mensajes;
-using ATMSimulador.Domain.Transacciones;
+using ATMSimulador.Domain.Security;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using ATMSimulador.Domain.Transacciones;
+using System.Text;
 
 namespace ATMSimulador.Features.Cuentas
 {
-    public class CuentasService(
-        ILogger<CuentasService> logger,
-        IUnitOfWork unitOfWork,
-        CuentaDomain cuentaDomain,
-        IHttpContextAccessor httpContextAccessor) : ICuentasService
+    public class CuentasService : ICuentasService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly ILogger<CuentasService> _logger = logger;
-        private readonly CuentaDomain _cuentaDomain = cuentaDomain;
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CuentasService> _logger;
+        private readonly CuentaDomain _cuentaDomain;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionHelper _encryptionHelper;
 
-        public async Task<Response<decimal>> ConsultarSaldoAsync(int cuentaId)
+        public CuentasService(
+            ILogger<CuentasService> logger,
+            IUnitOfWork unitOfWork,
+            CuentaDomain cuentaDomain,
+            IHttpContextAccessor httpContextAccessor,
+            EncryptionHelper encryptionHelper)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+            _cuentaDomain = cuentaDomain;
+            _httpContextAccessor = httpContextAccessor;
+            _encryptionHelper = encryptionHelper;
+        }
+
+        public async Task<Response<string>> ConsultarSaldoAsync(int cuentaId)
         {
             int usuarioId = ObtenerUsuarioId();
             var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaId && x.UsuarioId == usuarioId);
             if (cuenta == null)
             {
-                return Response<decimal>.Fail(CuentasMensajes.MSC_004);
+                return Response<string>.Fail(CuentasMensajes.MSC_004);
             }
 
             var saldo = _cuentaDomain.DecryptSaldo(cuenta.Saldo);
+            var encryptedSaldo = _encryptionHelper.EncryptionService.Encrypt(saldo.ToString());
             RegistrarAuditoria(cuenta.UsuarioId, "Consulta de Saldo", $"Consulta de saldo para la cuenta {cuenta.NumeroCuenta}");
-            return Response<decimal>.Success(saldo);
+            return Response<string>.Success(encryptedSaldo);
         }
 
         public async Task<Response<bool>> TransferirAsync(int cuentaOrigenId, int cuentaDestinoId, decimal monto)
@@ -103,7 +121,7 @@ namespace ATMSimulador.Features.Cuentas
             }
         }
 
-        public async Task<Response<List<CuentaDto>>> ListarCuentasAsync()
+        public async Task<Response<List<CuentaDtoString>>> ListarCuentasAsync()
         {
             int usuarioId = ObtenerUsuarioId();
 
@@ -121,20 +139,16 @@ namespace ATMSimulador.Features.Cuentas
                 Activa = c.Activa
             }).ToList();
 
+            var encryptedCuentasDto = cuentasDto
+                .Select(c => _encryptionHelper.EncriptarPropiedades<CuentaDto, CuentaDtoString>(c))
+                .ToList();
+
             RegistrarAuditoria(usuarioId, "Listar Cuentas", "Listado de cuentas del usuario");
 
-            return Response<List<CuentaDto>>.Success(cuentasDto);
+            return Response<List<CuentaDtoString>>.Success(encryptedCuentasDto);
         }
 
-        private int ObtenerUsuarioId()
-        {
-            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
-            int.TryParse(userId, out var usuarioId);
-
-            return usuarioId;
-        }
-
-        public async Task<Response<CuentaDto>> AperturarCuentaAsync(CuentaDto cuentaDto)
+        public async Task<Response<CuentaDtoString>> AperturarCuentaAsync(CuentaDto cuentaDto)
         {
             int usuarioId = ObtenerUsuarioId();
             cuentaDto.UsuarioId = usuarioId;
@@ -143,7 +157,7 @@ namespace ATMSimulador.Features.Cuentas
 
             if (!cuentaResponse.Ok)
             {
-                return Response<CuentaDto>.Fail(cuentaResponse.Message);
+                return Response<CuentaDtoString>.Fail(cuentaResponse.Message);
             }
 
             var cuenta = cuentaResponse.Data!;
@@ -168,16 +182,26 @@ namespace ATMSimulador.Features.Cuentas
 
                 cuentaDto.CuentaId = cuenta.CuentaId;
 
+                var encryptedCuentaDto = _encryptionHelper.EncriptarPropiedades<CuentaDto, CuentaDtoString>(cuentaDto);
+
                 RegistrarAuditoria(cuenta.UsuarioId, "Apertura de Cuenta", $"Apertura de cuenta {cuenta.NumeroCuenta} con saldo inicial {cuentaDto.Saldo}");
 
-                return Response<CuentaDto>.Success(cuentaDto);
+                return Response<CuentaDtoString>.Success(encryptedCuentaDto);
             }
             catch (Exception ex)
             {
                 _unitOfWork.RollBack();
                 _logger.LogError(ex, CuentasMensajes.MSC_001);
-                return Response<CuentaDto>.Fail(ex.Message);
+                return Response<CuentaDtoString>.Fail(ex.Message);
             }
+        }
+
+        private int ObtenerUsuarioId()
+        {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            int.TryParse(userId, out var usuarioId);
+
+            return usuarioId;
         }
 
         private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)
