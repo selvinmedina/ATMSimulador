@@ -4,6 +4,7 @@
     {
         public const string APERTURA = "APERTURA";
         public const string RETIRO = "RET";
+        public const string DEPOSITO = "DEP";
         public const string TEF_A = "TEF A {0}";
         public const string TEF_DE = "TEF DE {0}";
         public const string PAGO_RECIBIDO = "PAGO RECIBIDO";

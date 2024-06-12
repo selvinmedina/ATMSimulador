@@ -21,5 +21,8 @@ namespace ATMSimulador.Features.Cuentas
 
         [OperationContract(Name = "Retirar")]
         Task<Response<RetiroDtoString>> RetirarAsync(int cuentaId, decimal monto);
+
+        [OperationContract(Name = "Depositar")]
+        Task<Response<DepositoDtoString>> DepositarAsync(int cuentaId, decimal monto);
     }
 }

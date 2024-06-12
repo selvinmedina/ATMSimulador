@@ -259,6 +259,63 @@ namespace ATMSimulador.Features.Cuentas
             }
         }
 
+        public async Task<Response<DepositoDtoString>> DepositarAsync(int cuentaId, decimal monto)
+        {
+            int usuarioId = ObtenerUsuarioId();
+
+            var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable().FirstOrDefaultAsync(x => x.CuentaId == cuentaId && x.UsuarioId == usuarioId);
+
+            if (cuenta == null)
+            {
+                return Response<DepositoDtoString>.Fail(CuentasMensajes.MSC_004);
+            }
+
+            _unitOfWork.BeginTransaction();
+
+            try
+            {
+                var saldoActual = _cuentaDomain.DecryptSaldo(cuenta.Saldo) + monto;
+                cuenta.Saldo = _cuentaDomain.EncryptSaldo(saldoActual);
+
+                _unitOfWork.Repository<Cuenta>().Update(cuenta);
+
+                // Registrar transacción de depósito
+                var transaccionDeposito = new Transaccion
+                {
+                    CuentaId = cuentaId,
+                    TipoTransaccion = TransaccionTipos.DEPOSITO,
+                    Monto = monto,
+                    FechaTransaccion = DateTime.UtcNow,
+                    Estado = "COMPLETADO"
+                };
+                _unitOfWork.Repository<Transaccion>().Add(transaccionDeposito);
+
+                await _unitOfWork.SaveAsync();
+                _unitOfWork.Commit();
+
+                var depositoDto = new DepositoDto
+                {
+                    CuentaId = cuenta.CuentaId,
+                    Monto = monto,
+                    SaldoActual = saldoActual,
+                    NumeroCuenta = cuenta.NumeroCuenta,
+                    FechaTransaccion = transaccionDeposito.FechaTransaccion
+                };
+
+                var encryptedDepositoDto = _encryptionHelper.EncriptarPropiedades<DepositoDto, DepositoDtoString>(depositoDto);
+
+                RegistrarAuditoria(cuenta.UsuarioId, "Depósito", $"Depósito de {monto} a la cuenta {cuenta.NumeroCuenta}");
+
+                return Response<DepositoDtoString>.Success(encryptedDepositoDto);
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.RollBack();
+                _logger.LogError(ex, CuentasMensajes.MSC_005);
+                return Response<DepositoDtoString>.Fail(CuentasMensajes.MSC_005);
+            }
+        }
+
         private int ObtenerUsuarioId()
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
