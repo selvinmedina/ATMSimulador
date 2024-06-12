@@ -46,5 +46,19 @@ namespace ATMSimulador.Domain.Dominios
             return storedHash.SequenceEqual(enteredHash);
         }
 
+        private byte[] EncryptPin(string pin)
+        {
+            return _encryptionService.EncryptBytes(pin);
+        }
+
+        public Response<Usuario> UpdatePin(Usuario usuario, string nuevoPin)
+        {
+            if (string.IsNullOrWhiteSpace(nuevoPin) || nuevoPin.Length != 4)
+                return Response<Usuario>.Fail(UsuariosMensajes.MSU_003);
+
+            usuario.Pin = EncryptPin(nuevoPin);
+            return Response<Usuario>.Success(usuario);
+        }
+
     }
 }

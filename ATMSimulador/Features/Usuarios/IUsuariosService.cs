@@ -15,5 +15,8 @@ namespace ATMSimulador.Features.Usuarios
 
         [OperationContract(Name = "GetUserData")]
         Response<UsuarioDataDtoString> GetUserDataAsync();
+
+        [OperationContract(Name = "CambiarPin")]
+        Task<Response<bool>> CambiarPinAsync(string nuevoPin);
     }
 }

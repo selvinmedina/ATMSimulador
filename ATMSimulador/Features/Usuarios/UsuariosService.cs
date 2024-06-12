@@ -140,6 +140,52 @@ namespace ATMSimulador.Features.Usuarios
             return encryptedResponse;
         }
 
+        public async Task<Response<bool>> CambiarPinAsync(string nuevoPin)
+        {
+            var usuarioId = ObtenerUsuarioId();
+            if (usuarioId == 0)
+            {
+                return Response<bool>.Fail("Usuario no encontrado.");
+            }
+
+            try
+            {
+                var usuario = await _unitOfWork.Repository<Usuario>().AsQueryable()
+                    .FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
+
+                if (usuario == null)
+                {
+                    return Response<bool>.Fail("Usuario no encontrado.");
+                }
+
+                var response = _usuarioDomain.UpdatePin(usuario, nuevoPin);
+                if (!response.Ok)
+                {
+                    return Response<bool>.Fail(response.Message);
+                }
+
+                _unitOfWork.Repository<Usuario>().Update(response.Data!);
+                await _unitOfWork.SaveAsync();
+
+                RegistrarAuditoria(usuario.UsuarioId, "Cambio de Pin", $"El usuario {usuario.NombreUsuario} cambió su PIN exitosamente.");
+
+                return Response<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cambiar el PIN.");
+                return Response<bool>.Fail("Error al cambiar el PIN.");
+            }
+        }
+
+        private int ObtenerUsuarioId()
+        {
+            var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
+            int.TryParse(userId, out var usuarioId);
+            return usuarioId;
+        }
+
+
         private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)
         {
             var auditoria = new Auditoria
