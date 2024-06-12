@@ -1,6 +1,7 @@
 ﻿using ATMSimulador.Domain;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
+using ATMSimulador.Domain.Security;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,23 +12,26 @@ namespace ATMSimulador.Features.Servicios
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ServiciosService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionHelper _encryptionHelper;
 
         public ServiciosService(
             ILogger<ServiciosService> logger,
             IUnitOfWork unitOfWork,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            EncryptionHelper encryptionHelper)
         {
             _logger = logger;
             _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
+            _encryptionHelper = encryptionHelper;
         }
 
-        public async Task<Response<ServicioDto>> CrearServicioAsync(ServicioDto servicioDto)
+        public async Task<Response<ServicioDtoString>> CrearServicioAsync(ServicioDto servicioDto)
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
             if (!int.TryParse(userId, out int usuarioId))
             {
-                return Response<ServicioDto>.Fail("Invalid user ID");
+                return Response<ServicioDtoString>.Fail("Invalid user ID");
             }
             var servicio = new Servicio
             {
@@ -44,28 +48,30 @@ namespace ATMSimulador.Features.Servicios
 
                 RegistrarAuditoria(usuarioId, "Crear Servicio", $"Servicio {servicioDto.NombreServicio} creado.");
 
-                return Response<ServicioDto>.Success(servicioDto);
+                var encryptedServicioDto = _encryptionHelper.EncriptarPropiedades<ServicioDto, ServicioDtoString>(servicioDto);
+
+                return Response<ServicioDtoString>.Success(encryptedServicioDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creando servicio");
-                return Response<ServicioDto>.Fail(ex.Message);
+                return Response<ServicioDtoString>.Fail(ex.Message);
             }
         }
 
-        public async Task<Response<ServicioDto>> EditarServicioAsync(ServicioDto servicioDto)
+        public async Task<Response<ServicioDtoString>> EditarServicioAsync(ServicioDto servicioDto)
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
             if (!int.TryParse(userId, out int usuarioId))
             {
-                return Response<ServicioDto>.Fail("Invalid user ID");
+                return Response<ServicioDtoString>.Fail("Invalid user ID");
             }
 
             var servicio = await _unitOfWork.Repository<Servicio>().AsQueryable().FirstOrDefaultAsync(x => x.ServicioId == servicioDto.ServicioId);
 
             if (servicio == null)
             {
-                return Response<ServicioDto>.Fail("Servicio no encontrado");
+                return Response<ServicioDtoString>.Fail("Servicio no encontrado");
             }
 
             servicio.NombreServicio = servicioDto.NombreServicio;
@@ -78,16 +84,18 @@ namespace ATMSimulador.Features.Servicios
 
                 RegistrarAuditoria(usuarioId, "Editar Servicio", $"Servicio {servicioDto.NombreServicio} editado.");
 
-                return Response<ServicioDto>.Success(servicioDto);
+                var encryptedServicioDto = _encryptionHelper.EncriptarPropiedades<ServicioDto, ServicioDtoString>(servicioDto);
+
+                return Response<ServicioDtoString>.Success(encryptedServicioDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error editando servicio");
-                return Response<ServicioDto>.Fail(ex.Message);
+                return Response<ServicioDtoString>.Fail(ex.Message);
             }
         }
 
-        public async Task<Response<List<ServicioDto>>> ListarServiciosAsync()
+        public async Task<Response<List<ServicioDtoString>>> ListarServiciosAsync()
         {
             try
             {
@@ -99,29 +107,31 @@ namespace ATMSimulador.Features.Servicios
                     Descripcion = s.Descripcion
                 }).ToList();
 
-                // No se necesita UsuarioId para listar, así que no registramos auditoría aquí.
+                var encryptedServiciosDto = serviciosDto
+                    .Select(s => _encryptionHelper.EncriptarPropiedades<ServicioDto, ServicioDtoString>(s))
+                    .ToList();
 
-                return Response<List<ServicioDto>>.Success(serviciosDto);
+                return Response<List<ServicioDtoString>>.Success(encryptedServiciosDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error listando servicios");
-                return Response<List<ServicioDto>>.Fail(ex.Message);
+                return Response<List<ServicioDtoString>>.Fail(ex.Message);
             }
         }
 
-        public async Task<Response<ServicioDto>> ListarServicioPorIdAsync(int servicioId)
+        public async Task<Response<ServicioDtoString>> ListarServicioPorIdAsync(int servicioId)
         {
             var desencryptedServicioId = _httpContextAccessor.HttpContext?.Items["servicioId"]?.ToString();
             if (!int.TryParse(desencryptedServicioId, out servicioId))
             {
-                return Response<ServicioDto>.Fail("Invalid service ID");
+                return Response<ServicioDtoString>.Fail("Invalid service ID");
             }
             var servicio = await _unitOfWork.Repository<Servicio>().AsQueryable().FirstOrDefaultAsync(x => x.ServicioId == servicioId);
 
             if (servicio == null)
             {
-                return Response<ServicioDto>.Fail("Servicio no encontrado");
+                return Response<ServicioDtoString>.Fail("Servicio no encontrado");
             }
 
             var servicioDto = new ServicioDto
@@ -131,9 +141,9 @@ namespace ATMSimulador.Features.Servicios
                 Descripcion = servicio.Descripcion
             };
 
-            // No se necesita UsuarioId para listar por ID, así que no registramos auditoría aquí.
+            var encryptedServicioDto = _encryptionHelper.EncriptarPropiedades<ServicioDto, ServicioDtoString>(servicioDto);
 
-            return Response<ServicioDto>.Success(servicioDto);
+            return Response<ServicioDtoString>.Success(encryptedServicioDto);
         }
 
         private void RegistrarAuditoria(int usuarioId, string tipoActividad, string descripcion)

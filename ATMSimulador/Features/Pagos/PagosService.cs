@@ -3,34 +3,46 @@ using ATMSimulador.Domain.Dominios;
 using ATMSimulador.Domain.Dtos;
 using ATMSimulador.Domain.Entities;
 using ATMSimulador.Domain.Mensajes;
+using ATMSimulador.Domain.Security;
 using ATMSimulador.Domain.Transacciones;
 using EntityFramework.Infrastructure.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace ATMSimulador.Features.Pagos
 {
-    public class PagosService(
-        ILogger<PagosService> logger,
-        IUnitOfWork unitOfWork,
-        PagoDomain pagoDomain,
-        CuentaDomain cuentaDomain,
-        IHttpContextAccessor httpContextAccessor) : IPagosService
+    public class PagosService : IPagosService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly ILogger<PagosService> _logger = logger;
-        private readonly PagoDomain _pagoDomain = pagoDomain;
-        private readonly CuentaDomain _cuentaDomain = cuentaDomain;
-        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<PagosService> _logger;
+        private readonly PagoDomain _pagoDomain;
+        private readonly CuentaDomain _cuentaDomain;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly EncryptionHelper _encryptionHelper;
+
+        public PagosService(
+            ILogger<PagosService> logger,
+            IUnitOfWork unitOfWork,
+            PagoDomain pagoDomain,
+            CuentaDomain cuentaDomain,
+            IHttpContextAccessor httpContextAccessor,
+            EncryptionHelper encryptionHelper)
+        {
+            _logger = logger;
+            _unitOfWork = unitOfWork;
+            _pagoDomain = pagoDomain;
+            _cuentaDomain = cuentaDomain;
+            _httpContextAccessor = httpContextAccessor;
+            _encryptionHelper = encryptionHelper;
+        }
 
         private int ObtenerUsuarioId()
         {
             var userId = _httpContextAccessor!.HttpContext!.Items["userId"]!.ToString();
             int.TryParse(userId, out var usuarioId);
-
             return usuarioId;
         }
 
-        public async Task<Response<PagoDto>> RealizarPagoAsync(PagoDto pagoDto)
+        public async Task<Response<PagoDtoString>> RealizarPagoAsync(PagoDto pagoDto)
         {
             var usuarioId = ObtenerUsuarioId();
             var cuenta = await _unitOfWork.Repository<Cuenta>().AsQueryable()
@@ -38,13 +50,13 @@ namespace ATMSimulador.Features.Pagos
 
             if (cuenta == null)
             {
-                return Response<PagoDto>.Fail(CuentasMensajes.MSC_004);
+                return Response<PagoDtoString>.Fail(CuentasMensajes.MSC_004);
             }
 
             var validacion = _cuentaDomain.ValidateSaldo(cuenta, pagoDto.Monto);
             if (!validacion.Ok)
             {
-                return Response<PagoDto>.Fail(validacion.Message);
+                return Response<PagoDtoString>.Fail(validacion.Message);
             }
 
             _unitOfWork.BeginTransaction();
@@ -60,7 +72,7 @@ namespace ATMSimulador.Features.Pagos
                 var pagoResponse = _pagoDomain.CreatePago(pagoDto);
                 if (!pagoResponse.Ok)
                 {
-                    return Response<PagoDto>.Fail(pagoResponse.Message);
+                    return Response<PagoDtoString>.Fail(pagoResponse.Message);
                 }
 
                 var pago = pagoResponse.Data!;
@@ -70,7 +82,7 @@ namespace ATMSimulador.Features.Pagos
                 var servicio = await _unitOfWork.Repository<Servicio>().AsQueryable().FirstOrDefaultAsync(x => x.ServicioId == pagoDto.ServicioId);
                 if (servicio == null)
                 {
-                    return Response<PagoDto>.Fail("Servicio no encontrado");
+                    return Response<PagoDtoString>.Fail("Servicio no encontrado");
                 }
 
                 var transaccionPago = new Transaccion
@@ -88,13 +100,15 @@ namespace ATMSimulador.Features.Pagos
 
                 RegistrarAuditoria(cuenta.UsuarioId, "Pago de Servicio", $"Pago de {pagoDto.Monto} para el servicio {servicio.NombreServicio}");
 
-                return Response<PagoDto>.Success(pagoDto);
+                var encryptedPagoDto = _encryptionHelper.EncriptarPropiedades<PagoDto, PagoDtoString>(pagoDto);
+
+                return Response<PagoDtoString>.Success(encryptedPagoDto);
             }
             catch (Exception ex)
             {
                 _unitOfWork.RollBack();
                 _logger.LogError(ex, PagosMensajes.MSP_002);
-                return Response<PagoDto>.Fail(PagosMensajes.MSP_002);
+                return Response<PagoDtoString>.Fail(PagosMensajes.MSP_002);
             }
         }
 

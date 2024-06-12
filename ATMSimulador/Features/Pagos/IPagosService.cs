@@ -8,6 +8,6 @@ namespace ATMSimulador.Features.Pagos
     public interface IPagosService : IDisposable
     {
         [OperationContract(Name = "RealizarPago")]
-        Task<Response<PagoDto>> RealizarPagoAsync(PagoDto pagoDto);
+        Task<Response<PagoDtoString>> RealizarPagoAsync(PagoDto pagoDto);
     }
 }

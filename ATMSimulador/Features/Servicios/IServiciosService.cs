@@ -8,15 +8,15 @@ namespace ATMSimulador.Features.Servicios
     public interface IServiciosService : IDisposable
     {
         [OperationContract(Name = "CrearServicio")]
-        Task<Response<ServicioDto>> CrearServicioAsync(ServicioDto servicioDto);
+        Task<Response<ServicioDtoString>> CrearServicioAsync(ServicioDto servicioDto);
 
         [OperationContract(Name = "EditarServicio")]
-        Task<Response<ServicioDto>> EditarServicioAsync(ServicioDto servicioDto);
+        Task<Response<ServicioDtoString>> EditarServicioAsync(ServicioDto servicioDto);
 
         [OperationContract(Name = "ListarServicios")]
-        Task<Response<List<ServicioDto>>> ListarServiciosAsync();
+        Task<Response<List<ServicioDtoString>>> ListarServiciosAsync();
 
         [OperationContract(Name = "ListarServicioPorId")]
-        Task<Response<ServicioDto>> ListarServicioPorIdAsync(int servicioId);
+        Task<Response<ServicioDtoString>> ListarServicioPorIdAsync(int servicioId);
     }
 }

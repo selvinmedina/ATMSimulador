@@ -16,7 +16,7 @@ namespace ATMSimulador.Domain.Dominios
                 ServicioId = pagoDto.ServicioId,
                 CuentaId = pagoDto.CuentaId,
                 Monto = pagoDto.Monto,
-                FechaPago = pagoDto.FechaPago
+                FechaPago = DateTime.Now
             };
 
             return Response<Pago>.Success(pago);
