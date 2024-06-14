@@ -5,21 +5,11 @@
 POST {{ATMSimulador_HostAddress}}/CuentasService.svc
 Content-Type: text/xml
 SOAPAction: "http://atm.com/service/AperturarCuenta"
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3IiwianRpIjoiNDA4NTUyMzEtNDRkZS00YTBlLWFmNzAtZGJhZDk0NGQ3OGRlIiwic3ViIjoieW9uaSIsIm5iZiI6MTcxODAwMjEzNiwiZXhwIjoxNzE4NjA2OTM2LCJpYXQiOjE3MTgwMDIxMzYsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.nuRNDTyInlZIszJTpJaeZ5ITAh-_Y9k4O-g89EI21jU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOSIsImp0aSI6IjdiYjgwMjExLTg4NDctNDg3NC1hYzkyLWRlNzBhZDcyYmEyNyIsInN1YiI6ImVzbWVyYWxkYSIsIm5iZiI6MTcxODMyOTk4NywiZXhwIjoxNzE4OTM0Nzg3LCJpYXQiOjE3MTgzMjk5ODcsImlzcyI6Imh0dHBzOi8vaWQuc2VsdmlubWVkaW5hLmNvbSIsImF1ZCI6Imh0dHBzOi8vc2VsdmlubWVkaW5hLmNvbSJ9.Mto1cL2SQYIvagnxdBsqOt0338ClqFhbywf-xwxmKu4
+X-HMAC-Signature: d8b698dbb912750f06292f7324050464
 
 
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/">
-  <soap:Header/>
-  <soap:Body>
-    <ser:AperturarCuenta>
-      <ser:cuentaDto>
-        <ser:NumeroCuenta>cm5QHbqoycZICYAPF9FR+w==</ser:NumeroCuenta>
-        <ser:Saldo>Q0Gk1OflDdk=</ser:Saldo>
-        <ser:Activa>blABf9FyDas=</ser:Activa>
-      </ser:cuentaDto>
-    </ser:AperturarCuenta>
-  </soap:Body>
-</soap:Envelope>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://atm.com/service/"> <soap:Header/> <soap:Body> <ser:AperturarCuenta> <ser:cuentaDto> <ser:NumeroCuenta>cm5QHbqoycZHzIAR7EcxmA==</ser:NumeroCuenta> <ser:Saldo>tUHe2sVNuqs=</ser:Saldo> <ser:Activa>blABf9FyDas=</ser:Activa> </ser:cuentaDto> </ser:AperturarCuenta> </soap:Body> </soap:Envelope>
 
 ###
 
